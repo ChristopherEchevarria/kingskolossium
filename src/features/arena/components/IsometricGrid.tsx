@@ -25,6 +25,7 @@ import {
   getVisibleCells,
 } from '../../../engine/grid/LineOfSight';
 import { API_BASE_URL } from '../../../api/client';
+import { createMockEntity } from "../../../assets/mock_entity/mockEntity";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GridCell
@@ -39,6 +40,7 @@ function GridCell({
   isVisible,
   isBlocked,
   onClick,
+  onContextMenu,
   onDrop,
 }: {
   cellId:     number;
@@ -49,6 +51,7 @@ function GridCell({
   isVisible:  boolean;   // LOS source can see this cell
   isBlocked:  boolean;   // LOS source cannot see this cell
   onClick:    () => void;
+  onContextMenu: (e: React.MouseEvent) => void;
   onDrop:     (e: React.DragEvent) => void;
 }) {
   const [row] = cellIdToRowCol(cellId);
@@ -103,6 +106,7 @@ function GridCell({
       opacity={opacity}
       className="grid-cell"
       onClick={onClick}
+      onContextMenu={onContextMenu}
       onDragOver={handleDragOver}
       onDrop={onDrop}
     />
@@ -112,6 +116,8 @@ function GridCell({
 // ─────────────────────────────────────────────────────────────────────────────
 // GridEntitySprite
 // ─────────────────────────────────────────────────────────────────────────────
+const SPRITE_W = 48;   // ~85% of CELL_WIDTH (40)
+const SPRITE_H = 48;
 
 function GridEntitySprite({
   entity,
@@ -122,22 +128,18 @@ function GridEntitySprite({
   x:      number;
   y:      number;
 }) {
+
+  const href = entity.localImage
+    ? entity.localImage
+    : API_BASE_URL + entity.imageUrl;
   return (
     <g className="pointer-events-none">
-      <circle
-        cx={x}
-        cy={y + 3}
-        r={7}
-        fill={entity.team === 'ally' ? '#0076B6' : '#dc2626'}
-        stroke="#fff"
-        strokeWidth={1}
-      />
       <image
-        href={API_BASE_URL + entity.imageUrl}
-        x={x - 12}
-        y={y - 15}
-        width={24}
-        height={24}
+        href={href}
+        x={x - SPRITE_W / 2}
+        y={y - SPRITE_H / 2}
+        width={SPRITE_W}
+        height={SPRITE_H}
       />
     </g>
   );
@@ -186,22 +188,39 @@ export function IsometricGrid() {
   }, [selectedCellId, obstacles, setVisibleCells]);
 
   // ── Interaction handlers ───────────────────────────────────────────────────
-
-
-  const handleCellClick = useCallback((cellId: number) => {
+  const handleCellLeftClick = useCallback((cellId: number) => {
     const [row, col] = cellIdToRowCol(cellId);
     const cellType = cellTypes
     ? (cellTypes[row]?.[col] ?? CellType.UNAVAILABLE) as CellType
     : CellType.WALKABLE;
-    if (NON_INTERACTIVE.has(cellType)) return;
 
-     const occupant = Array.from(entities.values()).find(e => e.cellId === cellId);
-    if (occupant) {
-    removeEntity(occupant.id);
-    return;
-    }
+  // Allow click on interactive cells AND entity-occupied cells
+    const hasEntity = Array.from(entities.values()).some(
+    (e) => e.cellId === cellId
+    );
+    if (!hasEntity && NON_INTERACTIVE.has(cellType)) return;
+
+  // Toggle: click same cell deselects, click new cell selects
   selectCell(selectedCellId === cellId ? null : cellId);
-  }, [cellTypes, entities, selectedCellId, selectCell, removeEntity]);
+  }, [cellTypes, entities, selectedCellId, selectCell]
+  );
+
+  const handleCellRightClick = useCallback( (cellId: number, e: React.MouseEvent) => {
+      e.preventDefault();
+      const [row, col] = cellIdToRowCol(cellId);
+      const cellType = cellTypes
+      ? (cellTypes[row]?.[col] ?? CellType.UNAVAILABLE) as CellType
+      : CellType.WALKABLE;
+      if (NON_INTERACTIVE.has(cellType)) return;
+      const occupant = Array.from(entities.values()).find( (e) => e.cellId === cellId);
+      if (occupant) {
+          removeEntity(occupant.id);
+          return;
+          }
+      addEntity(createMockEntity(cellId));
+      },[cellTypes, entities, addEntity, removeEntity]
+  );
+
 
   const handleDrop = useCallback((cellId: number, e: React.DragEvent) => {
     e.preventDefault();
@@ -264,14 +283,15 @@ export function IsometricGrid() {
           isSelected={selectedCellId === cellId}
           isVisible={isVisible}
           isBlocked={isBlocked}
-          onClick={() => handleCellClick(cellId)}
+          onClick={() => handleCellLeftClick(cellId)}
+          onContextMenu={(e) => handleCellRightClick(cellId, e)}
           onDrop={(e) => handleDrop(cellId, e)}
         />
       );
     }
 
     return elements;
-  }, [cellTypes, selectedCellId, visibleCells, handleCellClick, handleDrop]);
+  }, [cellTypes, selectedCellId, visibleCells, handleCellLeftClick,handleCellRightClick, handleDrop]);
 
   // ── Entity sprites (memoised) ──────────────────────────────────────────────
   const entitySprites = useMemo(() => (
@@ -283,7 +303,7 @@ export function IsometricGrid() {
           key={entity.id}
           entity={entity}
           x={x}
-          y={y}
+          y={y-14}
         />
       );
     })
@@ -316,7 +336,6 @@ export function IsometricGrid() {
     <div
       ref={containerRef}
       className="w-full h-full grid-bg rounded overflow-hidden relative"
-      onContextMenu={(e) => e.preventDefault()}
     >
       {/* Reset button */}
       <button
@@ -331,7 +350,7 @@ export function IsometricGrid() {
       <svg
         width="100%"
         height="100%"
-        viewBox={`0 0 ${GRID_PIXEL_WIDTH} ${GRID_PIXEL_HEIGHT}`}
+        viewBox={`5 10 ${GRID_PIXEL_WIDTH} ${GRID_PIXEL_HEIGHT}`}
         preserveAspectRatio="xMidYMid meet"
       >
         {/* Grid cells */}

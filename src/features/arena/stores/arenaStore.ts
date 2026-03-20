@@ -68,6 +68,7 @@ export interface GridEntity {
   team: Team;
   cellId: number;
   imageUrl: string;
+  localImage?: string;
   stats: EntityStats;
   spells: EntitySpell[];
 }
@@ -217,9 +218,13 @@ export const useArenaStore = create<ArenaState>((set) => ({
   // ── Entities ──────────────────────────────────────────────────────────────
 
   addEntity: (entity) => set((state) => {
-    const next = new Map(state.entities);
-    next.set(entity.id, entity);
-    return { entities: next };
+  // Occupancy guard: one entity per cell
+  for (const e of state.entities.values()) {
+    if (e.cellId === entity.cellId) return {};
+  }
+  const next = new Map(state.entities);
+  next.set(entity.id, entity);
+  return { entities: next };
   }),
 
   removeEntity: (entityId) => set((state) => {
