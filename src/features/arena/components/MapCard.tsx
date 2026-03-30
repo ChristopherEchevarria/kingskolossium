@@ -47,7 +47,7 @@ export function MapCard({ map, isSelected, onClick }: MapCardProps) {
       `}
     >
       {/* Preview image */}
-      <div className="w-full h-36 bg-black rounded-t overflow-hidden">
+      <div className="w-full bg-black rounded-t overflow-hidden" style={{ aspectRatio: '16/10' }}>
         {map.preview_image_path ? (
           <img
             src={`${API_BASE_URL}/api/combat-maps/${map.preview_image_path}/preview-image/`}

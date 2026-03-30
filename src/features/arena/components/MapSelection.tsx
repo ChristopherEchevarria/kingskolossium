@@ -63,66 +63,66 @@ export function MapSelection() {
   }
 
   return (
-    <div className="flex items-center gap-2 px-2">
-      {/* Left arrow */}
-      <button
-        onClick={goLeft}
-        disabled={selectedMapIndex === 0}
-        className="p-2 text-app-white disabled:opacity-25 hover:text-app-blue
-                   transition-colors text-xl flex-shrink-0"
-      >
-        ◀
-      </button>
+      <div className="flex items-center gap-1 w-full overflow-hidden">
+        {/* Left arrow */}
+        <button
+          onClick={goLeft}
+          disabled={selectedMapIndex === 0}
+          className="p-1 text-app-white disabled:opacity-25 hover:text-app-blue
+                     transition-colors text-xl flex-shrink-0"
+        >
+          ◀
+        </button>
 
-      {/* Cards container */}
-      <div className="flex gap-10 flex-1">
-        {/* Left slot */}
-        {selectedMapIndex > 0 ? (
-          <div className="flex-1 min-w-0">
+        {/* Cards container — overflow-hidden prevents right-card bleed */}
+        <div className="flex gap-3 flex-1 min-w-0 overflow-hidden">
+          {/* Left slot */}
+          {selectedMapIndex > 0 ? (
+            <div className="flex-1 min-w-0 max-w-[33%]">
+              <MapCard
+                map={maps[selectedMapIndex - 1]}
+                isSelected={false}
+                onClick={() => loadMap(maps[selectedMapIndex - 1], selectedMapIndex - 1)}
+              />
+            </div>
+          ) : (
+            <div className="flex-1 max-w-[33%]" />
+          )}
+
+          {/* Center slot */}
+          <div className="flex-1 min-w-0 max-w-[33%]">
             <MapCard
-              map={maps[selectedMapIndex - 1]}
-              isSelected={false}
-              onClick={() => loadMap(maps[selectedMapIndex - 1], selectedMapIndex - 1)}
+              map={maps[selectedMapIndex]}
+              isSelected={true}
+              onClick={() => {}}
             />
           </div>
-        ) : (
-          <div className="flex-1" />
-        )}
 
-        {/* Center slot */}
-        <div className="flex-1 min-w-0">
-          <MapCard
-            map={maps[selectedMapIndex]}
-            isSelected={true}
-            onClick={() => {/* Already selected — no-op */}}
-          />
+          {/* Right slot */}
+          {selectedMapIndex < maps.length - 1 ? (
+            <div className="flex-1 min-w-0 max-w-[33%]">
+              <MapCard
+                map={maps[selectedMapIndex + 1]}
+                isSelected={false}
+                onClick={() => loadMap(maps[selectedMapIndex + 1], selectedMapIndex + 1)}
+              />
+            </div>
+          ) : (
+            <div className="flex-1 max-w-[33%]" />
+          )}
         </div>
 
-        {/* Right slot */}
-        {selectedMapIndex < maps.length - 1 ? (
-          <div className="flex-1 min-w-0">
-            <MapCard
-              map={maps[selectedMapIndex + 1]}
-              isSelected={false}
-              onClick={() => loadMap(maps[selectedMapIndex + 1], selectedMapIndex + 1)}
-            />
-          </div>
-        ) : (
-          <div className="flex-1" />
-        )}
+        {/* Right arrow */}
+        <button
+          onClick={goRight}
+          disabled={selectedMapIndex === maps.length - 1}
+          className="p-1 text-app-white disabled:opacity-25 hover:text-app-blue
+                     transition-colors text-xl flex-shrink-0"
+        >
+          ▶
+        </button>
       </div>
-
-      {/* Right arrow */}
-      <button
-        onClick={goRight}
-        disabled={selectedMapIndex === maps.length - 1}
-        className="p-2 text-app-white disabled:opacity-25 hover:text-app-blue
-                   transition-colors text-xl flex-shrink-0"
-      >
-        ▶
-      </button>
-    </div>
-  );
+    );
 }
 
 export default MapSelection;

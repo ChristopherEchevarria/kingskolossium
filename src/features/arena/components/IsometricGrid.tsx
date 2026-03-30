@@ -136,7 +136,7 @@ function GridCell({
     const baseColor  = isVisible ? '#005F8E' : '#005F8E';
     const leftColor  = darkenHex(baseColor, 0.45);
     const rightColor = darkenHex(baseColor, 0.65);
-    const strokeColor = isSelected ? '#5BC0F5' : '#5BC0F5';
+    const strokeColor = isSelected ? '#5BC0F5' : '#212b31';
 
     return (
       <g
@@ -149,7 +149,7 @@ function GridCell({
       >
         <polygon points={leftFace}  fill={leftColor}  stroke={strokeColor} strokeWidth={0.5}/>
         <polygon points={rightFace} fill={rightColor} stroke={strokeColor} strokeWidth={0.5}/>
-        <polygon points={topFace}   fill={baseColor}  stroke={isSelected ? '#5BC0F5' : '#5BC0F5'} strokeWidth={isSelected ? 1.5 : 1}/>
+        <polygon points={topFace}   fill={baseColor}  stroke={isSelected ? '#5BC0FF' : '#212b31'} strokeWidth={isSelected ? .5 : .5}/>
       </g>
     );
   }

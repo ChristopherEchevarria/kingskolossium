@@ -36,7 +36,7 @@ export function ArenaPage() {
       <div className="min-h-screen flex flex-col items-center py-6 px-4">
 
         {/* Single centred column — everything constrained to 70% max-width */}
-        <div className="w-full flex flex-col gap-3" style={{ maxWidth: '60%' }}>
+        < div className="w-full flex flex-col gap-3 overflow-hidden" style={{ maxWidth: '60%' }}>
 
           <h2 className="text-center text-app-blue font-mono text-2xl font-bold">
             Arena
