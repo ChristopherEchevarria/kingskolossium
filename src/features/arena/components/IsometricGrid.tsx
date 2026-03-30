@@ -19,7 +19,6 @@ import {
 import {
   cellIdToRowCol,
   gridToScreen,
-  getDiamondPoints,
   GRID_PIXEL_WIDTH,
   GRID_PIXEL_HEIGHT,
 } from '../../../engine/grid/GridMath';
@@ -110,13 +109,6 @@ function GridCell({
 
   // ── OBSTACLE — top face shifted UP by D, side height = hh + D (110px) ────
   if (cellType === CellType.OBSTACLE) {
-    // Shift the entire top face up by D pixels
-    const obsTop    = { x,       y: y - hh - D };
-    const obsRight  = { x: x+hw, y:         -D };   // wrong — recalculate below
-    const obsBottom = { x,       y: y + hh - D };
-    const obsLeft   = { x: x-hw, y:         -D };
-
-    // Correct: shift all 4 corners of the top diamond up by D
     const oTop    = { x,       y: top.y    - D };
     const oRight  = { x: x+hw, y: right.y  - D };
     const oBottom = { x,       y: bottom.y - D };

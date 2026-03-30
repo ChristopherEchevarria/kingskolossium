@@ -36,7 +36,7 @@ const MAX_CENTER_X = (GRID_COLS - 1) * CELL_WIDTH + CELL_WIDTH / 2;
 const MAX_CENTER_Y = (GRID_ROWS - 1) * (CELL_HEIGHT / 2);
 
 export const GRID_PIXEL_WIDTH  =MAX_CENTER_X + CELL_WIDTH  / 2 ; // ~610
-export const GRID_PIXEL_HEIGHT =GRID_PADDING+ MAX_CENTER_Y + CELL_HEIGHT / 2; // ~280
+export const GRID_PIXEL_HEIGHT =GRID_PADDING+ MAX_CENTER_Y + CELL_HEIGHT / 2 + CELL_DEPTH; // ~280
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cell ID  ↔  Row / Col
