@@ -23,7 +23,6 @@ export function MapIndexNav({ filteredMaps }: MapIndexNavProps) {
       className="
         liquid-glass rounded-xl px-4 py-2 my-2
         flex flex-wrap gap-1.5
-        max-h-20 overflow-y-auto
       "
     >
       {filteredMaps.map((map) => {

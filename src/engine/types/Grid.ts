@@ -13,6 +13,9 @@ export const CELL_HEIGHT_1080P = 110;
 export const CELL_WIDTH = 40;
 export const CELL_HEIGHT = 20;
 export const GRID_PADDING = 30;
+// ── 3D extrusion depth (pixels in SVG space) ─────────────────────────────────
+// Increase this number to make tiles look taller.
+export const CELL_DEPTH = 10;
 
 export enum CellType {
   UNAVAILABLE = 0, //

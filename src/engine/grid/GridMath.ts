@@ -12,6 +12,7 @@ import {
   CELL_WIDTH,
   CELL_HEIGHT,
   GRID_PADDING,
+  CELL_DEPTH,
   type ImmediateCellNeighbors,
 } from '../types/Grid';
 
@@ -30,12 +31,12 @@ export const DEFAULT_GRID_CONSTANTS = {
 
 // Derived pixel dimensions for SVG viewBox
 // Rightmost center: odd row, col 13 → x = PAD + 13*W + W/2
-const MAX_CENTER_X = GRID_PADDING + (GRID_COLS - 1) * CELL_WIDTH + CELL_WIDTH / 2;
+const MAX_CENTER_X = (GRID_COLS - 1) * CELL_WIDTH + CELL_WIDTH / 2;
 // Bottom center: row 39 → y = PAD + 39 * H/2
-const MAX_CENTER_Y = GRID_PADDING + (GRID_ROWS - 1) * (CELL_HEIGHT / 2);
+const MAX_CENTER_Y = (GRID_ROWS - 1) * (CELL_HEIGHT / 2);
 
-export const GRID_PIXEL_WIDTH  = MAX_CENTER_X + CELL_WIDTH  / 2; // ~610
-export const GRID_PIXEL_HEIGHT = MAX_CENTER_Y + CELL_HEIGHT / 2 ; // ~280
+export const GRID_PIXEL_WIDTH  =MAX_CENTER_X + CELL_WIDTH  / 2 ; // ~610
+export const GRID_PIXEL_HEIGHT =GRID_PADDING+ MAX_CENTER_Y + CELL_HEIGHT / 2; // ~280
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cell ID  ↔  Row / Col
@@ -148,7 +149,7 @@ export function getAdjacentCells(cellId: number): number[] {
 export function gridToScreen(row: number, col: number): { x: number; y: number } {
   const isOdd = row % 2 === 1;
   return {
-    x: GRID_PADDING + col * CELL_WIDTH + (isOdd ? CELL_WIDTH / 2 : 0),
+    x: col * CELL_WIDTH + (isOdd ? CELL_WIDTH / 2 : 0),
     y: GRID_PADDING + row * (CELL_HEIGHT / 2),
   };
 }

@@ -1,68 +1,35 @@
 /***
-Path:/kingskolossium/src/syltes/globals.css
+Path:/kingskolossium/src/styles/globals.css
 Created by: Christopher Echevarria
 Date of creation: 08Mar2026
-Purpose and Description:
 ***/
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Base styles - The 13th Control Center Theme */
 @layer base {
   html {
     font-family: 'Courier New', 'Consolas', monospace;
   }
 
   body {
-    @apply bg-app-grey text-gray-800;
+    @apply text-gray-800;
     min-height: 100vh;
+    background-color: #0f1518;
+    background-image:
+      linear-gradient(rgba(0,118,182,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,118,182,0.08) 1px, transparent 1px);
+    background-size: 55px 55px;
   }
 
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-app-grey;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-app-blue rounded;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-app-dark-blue;
-  }
+  ::-webkit-scrollbar        { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track  { @apply bg-app-grey; }
+  ::-webkit-scrollbar-thumb  { @apply bg-app-blue rounded; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-app-dark-blue; }
 }
 
-/* Component styles */
 @layer components {
-  /* Card component */
-  .card {
-    @apply bg-app-blue rounded border-2 border-app-dark-blue p-3;
-  }
-
-  /* Panel component (like the blue panels in mockup) */
-  .panel {
-    @apply bg-app-blue text-app-white p-4 rounded;
-  }
-
-  /* Table styles */
-  .data-table {
-    @apply w-full text-sm font-mono;
-  }
-
-  .data-table th {
-    @apply bg-app-dark-blue text-app-white px-2 py-1 text-left border border-app-dark-blue;
-  }
-
-  .data-table td {
-    @apply bg-app-white text-gray-800 px-2 py-1 border border-app-grey;
-  }
 
   /* Navigation button */
   .nav-btn {
@@ -71,25 +38,16 @@ Purpose and Description:
            hover:bg-app-blue hover:text-app-white hover:border-app-dark-blue
            transition-colors duration-200;
   }
-
   .nav-btn.active {
     @apply bg-app-blue text-app-white border-app-dark-blue;
   }
 
   /* Button variants */
-  .btn {
-    @apply px-4 py-2 rounded font-mono text-sm transition-colors duration-200;
-  }
+  .btn         { @apply px-4 py-2 rounded font-mono text-sm transition-colors duration-200; }
+  .btn-primary { @apply bg-app-blue hover:bg-app-dark-blue text-app-white border-2 border-app-dark-blue; }
+  .btn-secondary { @apply bg-app-grey hover:bg-gray-400 text-gray-800 border-2 border-gray-500; }
 
-  .btn-primary {
-    @apply bg-app-blue hover:bg-app-dark-blue text-app-white border-2 border-app-dark-blue;
-  }
-
-  .btn-secondary {
-    @apply bg-app-grey hover:bg-gray-400 text-gray-800 border-2 border-gray-500;
-  }
-
-  /* Input styles */
+  /* Input */
   .input {
     @apply bg-app-white border-2 border-app-blue rounded px-3 py-1
            text-gray-800 placeholder-gray-500 focus:outline-none
@@ -97,88 +55,22 @@ Purpose and Description:
            font-mono text-sm;
   }
 
-  /* Search input */
-  .search-input {
-    @apply w-full bg-app-white border-2 border-app-blue rounded px-3 py-1
-           text-gray-800 placeholder-gray-500 focus:outline-none
-           font-mono text-sm;
-  }
+  /* Grid cell hover */
+  .grid-cell { @apply transition-all duration-100 cursor-pointer; }
+  .grid-cell:hover { filter: brightness(1.2); }
 
-  /* Status indicator */
-  .status-online {
-    @apply text-status-online font-bold;
-  }
-
-  .status-offline {
-    @apply text-status-offline font-bold;
-  }
-
-  /* Section header */
-  .section-header {
-    @apply text-app-blue font-mono font-bold text-lg mb-2;
-  }
-
-  /* Entity card (for monster/breed selection) */
-  .entity-card {
-    @apply bg-app-blue text-app-white p-2 rounded border-2 border-app-dark-blue
-           cursor-pointer hover:bg-app-dark-blue transition-colors;
-  }
-
-  .entity-card.selected {
-    @apply ring-2 ring-app-white;
-  }
-
-  /* Grid cell styles */
-  .grid-cell {
-    @apply transition-all duration-100 cursor-pointer;
-  }
-
-  .grid-cell:hover {
-    filter: brightness(1.2);
-  }
-
-  .grid-cell.selected {
-    @apply stroke-app-blue;
-    stroke-width: 3px;
-  }
-
-  .grid-cell.in-range {
-    @apply opacity-80;
-  }
-
-  .grid-cell.in-los {
-    filter: brightness(1.1);
-  }
-
-  /* Collapsible section */
-  .collapsible-header {
-    @apply flex items-center gap-2 cursor-pointer text-app-blue font-mono font-bold;
-  }
-
-  /* Drag handle indicator */
-  .draggable {
-    @apply cursor-grab active:cursor-grabbing;
-  }
-
-  /* ── Liquid Glass — Honolulu Blue tint ───────────────────────────────────
-   * Web equivalent of react-native-liquid-glass:
-   *   backdrop-filter blurs whatever is behind the element,
-   *   a semi-transparent Honolulu-blue fill adds the tint,
-   *   two inset shadows simulate the top highlight + bottom depth of glass.
-   * ──────────────────────────────────────────────────────────────────────── */
-
+  /* ── Liquid Glass ───────────────────────────────────────────────────────── */
   .liquid-glass {
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
-    background: rgba(0, 95, 142, 0.15);          /* Honolulu blue #005F8E at 15 % */
-    border: 1px solid rgba(91, 192, 245, 0.22);  /* light-blue edge */
+    background: rgba(0, 95, 142, 0.15);
+    border: 1px solid rgba(91, 192, 245, 0.22);
     box-shadow:
-      0 4px 24px rgba(0, 95, 142, 0.2),           /* outer glow */
-      inset 0  1px 0 rgba(255, 255, 255, 0.09),   /* top highlight */
-      inset 0 -1px 0 rgba(0,  95, 142, 0.12);     /* bottom depth */
+      0 4px 24px rgba(0, 95, 142, 0.2),
+      inset 0  1px 0 rgba(255, 255, 255, 0.09),
+      inset 0 -1px 0 rgba(0,  95, 142, 0.12);
   }
 
-  /* Stronger variant for interactive elements that need to "pop" */
   .liquid-glass-strong {
     backdrop-filter: blur(20px) saturate(200%);
     -webkit-backdrop-filter: blur(20px) saturate(200%);
@@ -190,9 +82,7 @@ Purpose and Description:
       inset 0 -1px 0 rgba(0,  95, 142, 0.18);
   }
 
-  /* ── MapIndexNav button states ─────────────────────────────────────────── */
-
-  /* Idle — subtle glass pill */
+  /* ── MapIndexNav pill buttons ───────────────────────────────────────────── */
   .liquid-glass-btn {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -201,17 +91,12 @@ Purpose and Description:
     color: #5BC0F5;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
   }
-
   .liquid-glass-btn:hover {
     background: rgba(0, 95, 142, 0.35);
     border-color: rgba(91, 192, 245, 0.4);
     color: #ffffff;
-    box-shadow:
-      0 0 8px rgba(0, 95, 142, 0.45),
-      inset 0 1px 0 rgba(255,255,255,0.1);
+    box-shadow: 0 0 8px rgba(0, 95, 142, 0.45), inset 0 1px 0 rgba(255,255,255,0.1);
   }
-
-  /* Active / selected — full Honolulu-blue glow */
   .liquid-glass-btn--active {
     background: rgba(0, 95, 142, 0.65);
     border-color: #5BC0F5;
@@ -220,62 +105,5 @@ Purpose and Description:
       0 0 10px rgba(0, 95, 142, 0.8),
       0 0  4px rgba(91, 192, 245, 0.6),
       inset 0 1px 0 rgba(255,255,255,0.15);
-  }
-
-  .liquid-glass-btn--idle {
-    /* inherits .liquid-glass-btn base */
-  }
-}
-
-/* Utility styles */
-@layer utilities {
-  /* Animation for selected cells */
-  .pulse-cell {
-    animation: pulse-cell 1.5s ease-in-out infinite;
-  }
-
-  @keyframes pulse-cell {
-    0%, 100% {
-      opacity: 0.7;
-    }
-    50% {
-      opacity: 1;
-    }
-  }
-
-  /* Line of sight line animation */
-  .los-line {
-    stroke: #0076B6;
-    stroke-dasharray: 5, 5;
-    animation: dash 0.5s linear infinite;
-  }
-
-  @keyframes dash {
-    to {
-      stroke-dashoffset: -10;
-    }
-  }
-
-  /* Spell range highlight */
-  .spell-range {
-    animation: spell-pulse 1s ease-in-out infinite;
-  }
-
-  @keyframes spell-pulse {
-    0%, 100% {
-      opacity: 0.5;
-    }
-    50% {
-      opacity: 0.8;
-    }
-  }
-
-  /* Grid background pattern */
-  .grid-bg {
-    background-color: #1a1a1a;
-    background-image:
-      linear-gradient(rgba(0,118,182,0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,118,182,0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
   }
 }

@@ -11,6 +11,9 @@ import {
   GRID_COLS,
   GRID_ROWS,
   TOTAL_CELLS,
+  CELL_DEPTH,
+  CELL_WIDTH,
+  CELL_HEIGHT,
   CellType,
 } from '../../../engine/types/Grid';
 import {
@@ -30,6 +33,16 @@ import { createMockEntity } from "../../../assets/mock_entity/mockEntity";
 // ─────────────────────────────────────────────────────────────────────────────
 // GridCell
 // ─────────────────────────────────────────────────────────────────────────────
+
+
+// Darken a hex color for the side faces (simulates top-down lighting)
+function darkenHex(hex: string, factor: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.round(((n >> 16) & 0xff) * factor);
+  const g = Math.round(((n >>  8) & 0xff) * factor);
+  const b = Math.round(( n        & 0xff) * factor);
+  return `rgb(${r},${g},${b})`;
+}
 
 function GridCell({
   cellId,
@@ -54,70 +67,161 @@ function GridCell({
   onContextMenu: (e: React.MouseEvent) => void;
   onDrop:     (e: React.DragEvent) => void;
 }) {
-  const [row] = cellIdToRowCol(cellId);
-  const isRowEven = row % 2 === 0;
+  const hw = CELL_WIDTH  / 2;   // 20  — NOT GRID_PIXEL_WIDTH
+  const hh = CELL_HEIGHT / 2;   // 10
+  const D  = CELL_DEPTH;
 
-  // ── Base fill colour per cell type ───────────────────────────────────────
-  let fillColor: string;
-
-  switch (cellType) {
-    case CellType.WALKABLE:
-      fillColor = isRowEven ? '#212b31' : '#36454f';
-      break;
-    case CellType.OBSTACLE:
-      fillColor = '#874F89';
-      break;
-    case CellType.HOLE:
-      fillColor = '#4C3447';
-      break;
-    case CellType.SPAWN_ALLY:
-      fillColor = '#1d4ed8';
-      break;
-    case CellType.SPAWN_ENEMY:
-      fillColor = '#c2410c';
-      break;
-    case CellType.UNAVAILABLE:
-    default:
-      fillColor = '#111111';
-      break;
-  }
-
-  // ── LOS overlay ──────────────────────────────────────────────────────────
-  // isVisible  → tint the cell with Honolulu blue (clear LOS path)
-  // isBlocked  → dim the base colour (LOS cannot reach this cell)
-  if (isVisible)  fillColor = '#005F8E';
-  const opacity = isBlocked ? .5 : 1;
-
-  // ── Selection stroke ──────────────────────────────────────────────────────
-  const strokeColor = isSelected ? '#5BC0F5' : '#444';
-  const strokeWidth = isSelected ? 1.5       : 0.5;
+  // ── Diamond corner points ─────────────────────────────────────────────────
+  const top    = { x,       y: y - hh };
+  const right  = { x: x+hw, y        };
+  const bottom = { x,       y: y + hh };
+  const left   = { x: x-hw, y        };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
   };
 
+  // ── UNAVAILABLE — fully invisible, no extrusion ───────────────────────────
+  if (cellType === CellType.UNAVAILABLE) {
+    return (
+      <polygon
+        points={`${top.x},${top.y} ${right.x},${right.y} ${bottom.x},${bottom.y} ${left.x},${left.y}`}
+        fill="none"
+        stroke="none"
+        opacity={0}
+        style={{ pointerEvents: 'none' }}
+      />
+    );
+  }
+
+  // ── HOLE — fully invisible, no extrusion ─────────────────────────────────
+  if (cellType === CellType.HOLE) {
+    return (
+      <polygon
+        points={`${top.x},${top.y} ${right.x},${right.y} ${bottom.x},${bottom.y} ${left.x},${left.y}`}
+        fill="none"
+        stroke="none"
+        opacity={0}
+        style={{ pointerEvents: 'none' }}
+      />
+    );
+  }
+
+  // ── OBSTACLE — top face shifted UP by D, side height = hh + D (110px) ────
+  if (cellType === CellType.OBSTACLE) {
+    // Shift the entire top face up by D pixels
+    const obsTop    = { x,       y: y - hh - D };
+    const obsRight  = { x: x+hw, y:         -D };   // wrong — recalculate below
+    const obsBottom = { x,       y: y + hh - D };
+    const obsLeft   = { x: x-hw, y:         -D };
+
+    // Correct: shift all 4 corners of the top diamond up by D
+    const oTop    = { x,       y: top.y    - D };
+    const oRight  = { x: x+hw, y: right.y  - D };
+    const oBottom = { x,       y: bottom.y - D };
+    const oLeft   = { x: x-hw, y: left.y   - D };
+
+    // Side faces: from shifted diamond corners down to y + hh (base bottom)
+    // Left face: oLeft → oBottom → bottom → (left.x, left.y+0) [original left height]
+    // Total vertical span of sides: from oLeft.y to bottom.y = hh + D = 110px
+    const leftFace = [
+      `${oLeft.x},${oLeft.y}`,
+      `${oBottom.x},${oBottom.y}`,
+      `${bottom.x},${bottom.y}`,
+      `${left.x},${left.y}`,
+    ].join(' ');
+
+    const rightFace = [
+      `${oBottom.x},${oBottom.y}`,
+      `${oRight.x},${oRight.y}`,
+      `${right.x},${right.y}`,
+      `${bottom.x},${bottom.y}`,
+    ].join(' ');
+
+    const topFace = `${oTop.x},${oTop.y} ${oRight.x},${oRight.y} ${oBottom.x},${oBottom.y} ${oLeft.x},${oLeft.y}`;
+
+    const baseColor  = isVisible ? '#005F8E' : '#005F8E';
+    const leftColor  = darkenHex(baseColor, 0.45);
+    const rightColor = darkenHex(baseColor, 0.65);
+    const strokeColor = isSelected ? '#5BC0F5' : '#5BC0F5';
+
+    return (
+      <g
+        opacity={isBlocked ? 1 : 1}
+        onClick={onClick}
+        onContextMenu={onContextMenu}
+        onDragOver={handleDragOver}
+        onDrop={onDrop}
+        className="grid-cell"
+      >
+        <polygon points={leftFace}  fill={leftColor}  stroke={strokeColor} strokeWidth={0.5}/>
+        <polygon points={rightFace} fill={rightColor} stroke={strokeColor} strokeWidth={0.5}/>
+        <polygon points={topFace}   fill={baseColor}  stroke={isSelected ? '#5BC0F5' : '#5BC0F5'} strokeWidth={isSelected ? 1.5 : 1}/>
+      </g>
+    );
+  }
+
+  // ── GROUP 1: WALKABLE, SPAWN_ALLY, SPAWN_ENEMY — standard 3D tile ─────────
+  let baseColor: string;
+  const [row] = cellIdToRowCol(cellId);
+  switch (cellType) {
+    case CellType.WALKABLE:
+      baseColor = row % 2 === 0 ? '#212b31' : '#36454f'; break;
+    case CellType.SPAWN_ALLY:
+      baseColor = '#1d4ed8'; break;
+    case CellType.SPAWN_ENEMY:
+      baseColor = '#c2410c'; break;
+    default:
+      baseColor = '#212b31';
+  }
+
+  if (isVisible) baseColor = '#005F8E';
+
+  const leftColor  = darkenHex(baseColor, 0.45);
+  const rightColor = darkenHex(baseColor, 0.65);
+  const strokeColor = isSelected ? '#5BC0F5' : '#444';
+  const strokeWidth = isSelected ? 1.5 : 0.5;
+
+  // Left face:  left → bottom → bottom+D → left+D
+  const leftFace = [
+    `${left.x},${left.y}`,
+    `${bottom.x},${bottom.y}`,
+    `${bottom.x},${bottom.y + D}`,
+    `${left.x},${left.y + D}`,
+  ].join(' ');
+
+  // Right face: bottom → right → right+D → bottom+D
+  const rightFace = [
+    `${bottom.x},${bottom.y}`,
+    `${right.x},${right.y}`,
+    `${right.x},${right.y + D}`,
+    `${bottom.x},${bottom.y + D}`,
+  ].join(' ');
+
+  const topFace = `${top.x},${top.y} ${right.x},${right.y} ${bottom.x},${bottom.y} ${left.x},${left.y}`;
+
   return (
-    <polygon
-      points={getDiamondPoints(x, y)}
-      fill={fillColor}
-      stroke={strokeColor}
-      strokeWidth={strokeWidth}
-      opacity={opacity}
-      className="grid-cell"
+    <g
+      opacity={isBlocked ? 1 : 1}
       onClick={onClick}
       onContextMenu={onContextMenu}
       onDragOver={handleDragOver}
       onDrop={onDrop}
-    />
+      className="grid-cell"
+    >
+      <polygon points={leftFace}  fill={leftColor}  stroke={strokeColor} strokeWidth={strokeWidth * 0.5}/>
+      <polygon points={rightFace} fill={rightColor} stroke={strokeColor} strokeWidth={strokeWidth * 0.5}/>
+      <polygon points={topFace}   fill={baseColor}  stroke={strokeColor} strokeWidth={strokeWidth}/>
+    </g>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GridEntitySprite
 // ─────────────────────────────────────────────────────────────────────────────
-const SPRITE_W = 48;   // ~85% of CELL_WIDTH (40)
-const SPRITE_H = 48;
+const SPRITE_W = 55;   // ~85% of CELL_WIDTH (40)
+const SPRITE_H = 55;
 
 function GridEntitySprite({
   entity,
@@ -335,7 +439,7 @@ export function IsometricGrid() {
   return (
     <div
       ref={containerRef}
-      className="w-full h-full grid-bg rounded overflow-hidden relative"
+      className="w-full h-full relative"
     >
       {/* Reset button */}
       <button

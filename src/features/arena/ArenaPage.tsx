@@ -15,7 +15,6 @@ import { useArenaStore } from './stores/arenaStore';
 
 export function ArenaPage() {
   const { maps } = useArenaStore();
-
   // Controlled search query — lives here so both MapSearchBar and
   // MapIndexNav see the same value without touching the store.
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,23 +33,30 @@ export function ArenaPage() {
   }, [maps, searchQuery]);
 
   return (
-    <div className="h-full flex flex-col px-40">
-      <h2 className="text-center text-app-blue font-mono text-2xl font-bold mb-4">
-        Arena
-      </h2>
-      <div className="h-full flex flex-col px-20 ">
+      <div className="min-h-screen flex flex-col items-center py-6 px-4">
+
+        {/* Single centred column — everything constrained to 70% max-width */}
+        <div className="w-full flex flex-col gap-3" style={{ maxWidth: '60%' }}>
+
+          <h2 className="text-center text-app-blue font-mono text-2xl font-bold">
+            Arena
+          </h2>
+
           <MapSearchBar value={searchQuery} onChange={setSearchQuery} />
           <MapIndexNav filteredMaps={filteredMaps} />
           <MapSelection />
-      </div>
-      {/* 4. Battle Grid */}
-      <div className="flex-1 flex gap-4 min-h-0">
-        <div className="flex-1 min-h-0 px-5 py-5">
-          <IsometricGrid />
+
+          {/* Grid — same column width, aspect-ratio keeps proportions */}
+          <div
+            className="relative w-full"
+            style={{ aspectRatio: '610 / 475' }}
+          >
+            <IsometricGrid />
+          </div>
+
         </div>
       </div>
-    </div>
-  );
+    );
 }
 
 export default ArenaPage;
