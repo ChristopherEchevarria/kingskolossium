@@ -78,7 +78,7 @@ export function MapSelection() {
         <div className="flex gap-3 flex-1 min-w-0 overflow-hidden">
           {/* Left slot */}
           {selectedMapIndex > 0 ? (
-            <div className="flex-1 min-w-0 max-w-[33%]">
+            <div className="flex-1 min-w-0 max-w-[33%]" style={{ containerType: 'inline-size' }}>
               <MapCard
                 map={maps[selectedMapIndex - 1]}
                 isSelected={false}
@@ -90,7 +90,7 @@ export function MapSelection() {
           )}
 
           {/* Center slot */}
-          <div className="flex-1 min-w-0 max-w-[33%]">
+          <div className="flex-1 min-w-0 max-w-[33%]" style={{ containerType: 'inline-size' }}>
             <MapCard
               map={maps[selectedMapIndex]}
               isSelected={true}
@@ -100,7 +100,7 @@ export function MapSelection() {
 
           {/* Right slot */}
           {selectedMapIndex < maps.length - 1 ? (
-            <div className="flex-1 min-w-0 max-w-[33%]">
+            <div className="flex-1 min-w-0 max-w-[33%]" style={{ containerType: 'inline-size' }}>
               <MapCard
                 map={maps[selectedMapIndex + 1]}
                 isSelected={false}
