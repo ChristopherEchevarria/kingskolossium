@@ -8,6 +8,7 @@ Purpose and Description: Main header component — logo stub (v1.02 Step 1)
 import websiteLogo from '../../assets/header/website_logo.svg';
 import { BadgeStrip } from './components/BadgeStrip';
 import { useHeaderStore } from './stores/headerStore';
+import { LanguageSelector } from './components/LanguageSelector';
 
 export function SiteHeader() {
 
@@ -27,6 +28,11 @@ export function SiteHeader() {
             Kings Kolossium
           </h1>
           <BadgeStrip status={badgeStatus} />
+        </div>
+
+        {/* Right cluster */}
+        <div className="flex items-center gap-3 shrink-0">
+          <LanguageSelector />
         </div>
       </div>
 
