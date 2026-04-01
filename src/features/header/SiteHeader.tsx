@@ -9,10 +9,16 @@ import websiteLogo from '../../assets/header/website_logo.svg';
 import { BadgeStrip } from './components/BadgeStrip';
 import { useHeaderStore } from './stores/headerStore';
 import { LanguageSelector } from './components/LanguageSelector';
+import { LoginButton }     from './components/LoginButton';
+import { HamburgerMenu }   from './components/HamburgerMenu';
 
 export function SiteHeader() {
 
   const { badgeStatus } = useHeaderStore();
+    // Hardcoded until authStore is wired in v1.04
+  const isLoggedIn = false;
+  const nickname   = undefined;
+  const handleLogout = () => {};
   return (
     <header className="sticky top-0 z-30 w-full liquid-glass">
       <div className="max-w-screen-xl mx-auto flex items-center h-20 px-4">
@@ -32,7 +38,9 @@ export function SiteHeader() {
 
         {/* Right cluster */}
         <div className="flex items-center gap-3 shrink-0">
+          <LoginButton  isLoggedIn={isLoggedIn} nickname={nickname} />
           <LanguageSelector />
+          <HamburgerMenu isLoggedIn={isLoggedIn} nickname={nickname} onLogout={handleLogout} />
         </div>
       </div>
 

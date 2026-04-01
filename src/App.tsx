@@ -17,6 +17,7 @@ export default function App() {
         <Route path="/" element={<ArenaPage />} />
       </Routes>
     </BrowserRouter>
+
   );
 }
 
