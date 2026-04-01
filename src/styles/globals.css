@@ -30,7 +30,9 @@ Date of creation: 08Mar2026
 }
 
 @layer components {
-
+    .badge-img {
+      @apply w-3 h-3 transition-opacity duration-200;
+    }
   /* Navigation button */
   .nav-btn {
     @apply px-6 py-2 bg-app-grey text-gray-800 font-mono text-sm
