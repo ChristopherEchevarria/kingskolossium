@@ -48,7 +48,7 @@ Date of creation: 08Mar2026
   .btn         { @apply px-4 py-2 rounded font-mono text-sm transition-colors duration-200; }
   .btn-primary { @apply bg-app-blue hover:bg-app-dark-blue text-app-white border-2 border-app-dark-blue; }
   .btn-secondary { @apply bg-app-grey hover:bg-gray-400 text-gray-800 border-2 border-gray-500; }
-
+  .auth-btn  { @apply bg-gray-400 hover:bg-app-blue  text-app-white border-2 text-app-white; }
   /* Input */
   .input {
     @apply bg-app-white border-2 border-app-blue rounded px-3 py-1
@@ -108,4 +108,21 @@ Date of creation: 08Mar2026
       0 0  4px rgba(91, 192, 245, 0.6),
       inset 0 1px 0 rgba(255,255,255,0.15);
   }
+}
+
+.auth-card {
+  @apply w-full max-w-sm mx-auto p-8 rounded-xl;
+}
+
+.auth-input {
+  @apply w-full px-4 py-3 rounded-lg
+         bg-white/5 border border-white/10
+         text-white placeholder-white/40
+         font-mono text-sm
+         focus:outline-none focus:border-app-blue focus:ring-1 focus:ring-app-blue
+         transition duration-200;
+}
+
+.badge-img--inactive {
+  @apply opacity-40 grayscale;
 }
