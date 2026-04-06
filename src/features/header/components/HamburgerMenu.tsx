@@ -45,20 +45,18 @@ export function HamburgerMenu({ isLoggedIn, nickname, onLogout }: HamburgerMenuP
           )}
 
           {/* Slide-out panel */}
-          <div className={`fixed top-0 right-0 h-full w-72 liquid-glass-strong z-50
+          <div className={`fixed top-20 right-0 h-full w-72 gap-5 liquid-glass-strong z-50
                            flex flex-col transform transition-transform duration-300
-                           ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+                           ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}
+                           style={{ maxHeight: 'calc(100vh - 5rem)' }}>
 
             {/* User info */}
-            <div className="p-4 border-b border-white/10">
-              <div className="w-14 h-14 rounded-full bg-app-blue/30 mx-auto mb-2" />
-              <p className="text-center text-white font-mono text-sm">
-                {nickname ?? 'Guest'}
-              </p>
+            <div className="p-2">
+              <div className="w-14 h-14 rounded-full bg-white/30 mx-auto mb-2" />
             </div>
 
             {/* Expandable features area — placeholder */}
-            <div className="flex-1 p-4">
+            <div className="flex-1 p-4 liquid-glass-strong">
               <p className="text-white/50 text-xs font-mono">Features coming soon…</p>
             </div>
 

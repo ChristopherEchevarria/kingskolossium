@@ -12,12 +12,13 @@ import { LanguageSelector } from './components/LanguageSelector';
 import { LoginButton }     from './components/LoginButton';
 import { HamburgerMenu }   from './components/HamburgerMenu';
 import { useAuthStore } from '../auth/stores/authStore';
+import type { BadgeStatus } from './stores/headerStore';
 
 
 export function SiteHeader() {
 
   const { badgeStatus } = useHeaderStore();
-  const { user,isAuthenticated, logout } = useAuthStore();
+  const { user,isAuthenticated, logout   } = useAuthStore();
   const activeBadge = (user?.badge_status ?? badgeStatus) as BadgeStatus;
     // Hardcoded until authStore is wired in v1.04
   const isLoggedIn = isAuthenticated;
@@ -37,7 +38,7 @@ export function SiteHeader() {
           <h1 className="text-white font-mono text-lg font-bold whitespace-nowrap">
             Kings Kolossium
           </h1>
-          <BadgeStrip status={badgeStatus} />
+          <BadgeStrip status={activeBadge} />
         </div>
 
         {/* Right cluster */}
