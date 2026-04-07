@@ -26,15 +26,13 @@ export function SiteHeader() {
   const handleLogout = logout;
   return (
     <header className="sticky top-0 z-30 w-full liquid-glass">
-      <div className="max-w-screen-xl mx-auto flex items-center h-20 px-4">
+      <div className="max-w-screen-xl mx-auto grid grid-cols-3 items-center h-20 px-4">
         {/* Logo — hugs left */}
-        <img
-          src={websiteLogo}
-          alt="Kings Kolossium"
-          className="h-8 w-auto shrink-0"
-        />
+        <div className="flex items-center">
+            <img src={websiteLogo} alt="Kings Kolossium" className="h-8 w-auto shrink-0" />
+        </div>
         {/* Title + Badges — centered */}
-        <div className="flex-1 flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           <h1 className="text-white font-mono text-lg font-bold whitespace-nowrap">
             Kings Kolossium
           </h1>
@@ -42,7 +40,8 @@ export function SiteHeader() {
         </div>
 
         {/* Right cluster */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center justify-end gap-3
+        ">
           <LoginButton  isLoggedIn={isLoggedIn} nickname={nickname} />
           <LanguageSelector />
           <HamburgerMenu isLoggedIn={isLoggedIn} nickname={nickname} onLogout={handleLogout} />

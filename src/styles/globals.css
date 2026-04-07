@@ -83,6 +83,16 @@ Date of creation: 08Mar2026
       inset 0  1px 0 rgba(255, 255, 255, 0.13),
       inset 0 -1px 0 rgba(0,  95, 142, 0.18);
   }
+    .liquid-frosted-glass {
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    background: rgba(0, 95, 142, 0.75);
+    border: 1px solid rgba(91, 192, 245, 0.22);
+    box-shadow:
+      0 4px 24px rgba(0, 95, 142, 0.2),
+      inset 0  1px 0 rgba(255, 255, 255, 0.09),
+      inset 0 -1px 0 rgba(0,  95, 142, 0.12);
+  }
 
   /* ── MapIndexNav pill buttons ───────────────────────────────────────────── */
   .liquid-glass-btn {

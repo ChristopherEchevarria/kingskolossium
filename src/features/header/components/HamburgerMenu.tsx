@@ -14,10 +14,15 @@ interface HamburgerMenuProps {
 }
 
 export function HamburgerMenu({ isLoggedIn, nickname, onLogout }: HamburgerMenuProps) {
-  const { menuOpen, toggleMenu, closeMenu } = useHeaderStore();
+  const { menuOpen, toggleMenu, closeMenu, language } = useHeaderStore();
 
   // When logged out, the button renders but the panel does nothing interactive
   const canOpen = isLoggedIn;
+  const COMING_SOON: Record<string, string> = {
+      en: 'Features coming soon…',
+      fr: 'Fonctionnalités bientôt disponibles…',
+      es: 'Funcionalidades próximamente…',
+  };
 
   return (
     <>
@@ -35,7 +40,6 @@ export function HamburgerMenu({ isLoggedIn, nickname, onLogout }: HamburgerMenuP
         <span className={`block h-0.5 w-full bg-white rounded transition-transform duration-200
                           ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
       </button>
-
       {/* Only render panel + overlay when logged in */}
       {canOpen && (
         <>
@@ -45,20 +49,22 @@ export function HamburgerMenu({ isLoggedIn, nickname, onLogout }: HamburgerMenuP
           )}
 
           {/* Slide-out panel */}
-          <div className={`fixed top-20 right-0 h-full w-72 gap-5 liquid-glass-strong z-50
-                           flex flex-col transform transition-transform duration-300
-                           ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}
-                           style={{ maxHeight: 'calc(100vh - 5rem)' }}>
+          <div className={`fixed right-0 w-72 liquid-frosted-glass z-50
+                 flex flex-col transform transition-transform duration-300
+                 ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}
+                 style={{ top: '80px', height: 'calc(100vh - 80px)' }}>
 
             {/* User info */}
-            <div className="p-2">
-              <div className="w-14 h-14 rounded-full bg-white/30 mx-auto mb-2" />
+            <div className="p-2 rounded-corners">
+              <div className="w-14 h-14 rounded-full bg-black/30 mx-auto mb-3" />
             </div>
 
             {/* Expandable features area — placeholder */}
-            <div className="flex-1 p-4 liquid-glass-strong">
-              <p className="text-white/50 text-xs font-mono">Features coming soon…</p>
-            </div>
+              <div className="flex-1 p-4 overflow-y-auto">
+                <div className="liquid-glass rounded-xl p-4">
+                    <p className="text-white/50 text-xs font-mono">{COMING_SOON[language]}</p>
+                </div>
+              </div>
 
             {/* Logout */}
             <div className="p-4 border-t border-white/10">
