@@ -6,6 +6,7 @@ Purpose and Description: Zustand store for language, menu open state, and badge 
 ***/
 
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export type Language = 'en' | 'fr' | 'es';
 export type BadgeStatus = 'visitor' | 'loyal' | 'king';
@@ -21,13 +22,21 @@ interface HeaderState {
   closeMenu:      () => void;
 }
 
-export const useHeaderStore = create<HeaderState>((set) => ({
-  language:    'en',
-  menuOpen:    false,
-  badgeStatus: 'visitor',
+export const useHeaderStore = create<HeaderState>()(
+  persist(
+    (set) => ({
+      language:    (localStorage.getItem('kk_lang') as Language) ?? 'en',
+      menuOpen:    false,
+      badgeStatus: 'visitor',
 
-  setLanguage:    (language)    => set({ language }),
-  setBadgeStatus: (badgeStatus) => set({ badgeStatus }),
-  toggleMenu:     ()            => set((s) => ({ menuOpen: !s.menuOpen })),
-  closeMenu:      ()            => set({ menuOpen: false }),
-}));
+      setLanguage:    (language)    => set({ language }),
+      setBadgeStatus: (badgeStatus) => set({ badgeStatus }),
+      toggleMenu:     ()            => set((s) => ({ menuOpen: !s.menuOpen })),
+      closeMenu:      ()            => set({ menuOpen: false }),
+    }),
+    {
+      name:    'kk_header',          // localStorage key
+      partialize: (s) => ({ language: s.language }), // only persist language, not menuOpen
+    }
+  )
+);
