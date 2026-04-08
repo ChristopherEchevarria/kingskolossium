@@ -6,6 +6,7 @@ import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser, fetchCurrentUser } from '../../api/auth';
 import { useAuthStore } from './stores/authStore';
+import type { BadgeStatus } from './stores/authStore';
 
 interface Req { label: string; met: boolean; }
 
@@ -46,10 +47,11 @@ export function SignupPage() {
       const { access_token } = await registerUser({ nickname, email, password });
       localStorage.setItem('kk_token', access_token);
       const user = await fetchCurrentUser();
-      setAuth({ ...user, badge_status: user.badge_status as any }, access_token);
+      setAuth({ ...user, badge_status: user.badge_status as BadgeStatus  }, access_token);
       navigate('/');
-    } catch (e: any) {
-      setError(e?.response?.data?.detail ?? 'Registration failed. Try again.');
+    } catch (e: unknown) {
+      const detail = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      setError(detail ?? 'Registration failed. Try again.');
     } finally {
       setLoading(false);
     }
