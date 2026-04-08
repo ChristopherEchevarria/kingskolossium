@@ -128,9 +128,10 @@ export function buildCellTypesGrid(
 
   return grid;
 }
-
+export type ArenaMode = 'combat' | 'build';
 interface ArenaState {
 
+    mode: ArenaMode;
     // ── Map carousel ──────────────────────────────────────────────────────────
   maps:             MapInfo[];
   selectedMapIndex: number;
@@ -153,6 +154,7 @@ interface ArenaState {
   // Actions───────────────────────────────────────────────────────────────────
     // Map carousel
   setMaps:             (maps: MapInfo[]) => void;
+  setMode: (mode: ArenaMode) => void;
   setSelectedMapIndex: (index: number) => void;
   loadMapDetail:       (detail: MapDetail) => void;
 
@@ -175,6 +177,7 @@ interface ArenaState {
 export const useArenaStore = create<ArenaState>((set) => ({
 
   // ── Initial state ─────────────────────────────────────────────────────────
+  mode:             'combat',
   maps:             [],
   selectedMapIndex: 0,
   selectedMap:      null,
@@ -187,6 +190,7 @@ export const useArenaStore = create<ArenaState>((set) => ({
   // ── Map carousel ──────────────────────────────────────────────────────────
 
   setMaps: (maps) => set({ maps }),
+  setMode: (mode) => set({ mode }),
 
   setSelectedMapIndex: (index) => set({ selectedMapIndex: index }),
 
