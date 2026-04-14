@@ -52,6 +52,7 @@ export interface CharacteristicName {
   characteristic_id: number;
   keyword:           string;
   name:              string;
+  operator:          string;   // "+" or "-"
 }
 
 // ─── API Methods ─────────────────────────────────────────────────────────────
