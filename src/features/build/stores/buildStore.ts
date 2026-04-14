@@ -13,7 +13,7 @@ interface BuildState {
   equipmentItems:    EquipmentItem[];
   equipmentTypes:    EquipmentType[];
   totalItems:        number;
-  characteristicNames: Map<number, string>;
+  characteristicNames: Map<number, { name: string; keyword: string }>;
   isLoading:         boolean;
 
   // ── Search & filter ──────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ export const EQUIPMENT_SUPER_TYPE_IDS = new Set([1, 2, 3, 4, 5, 7, 10, 11, 12, 1
 export const useBuildStore = create<BuildState>((set) => ({
   equipmentItems:    [],
   equipmentTypes:    [],
-  characteristicNames: new Map<number, string>(),
+  characteristicNames: new Map<number, { name: string; keyword: string }>(),
   totalItems:        0,
   isLoading:         false,
 
@@ -52,7 +52,11 @@ export const useBuildStore = create<BuildState>((set) => ({
   setEquipmentTypes: (types) => set({ equipmentTypes: types }),
   setCharacteristicNames: (names) => set({
     characteristicNames: new Map(
-      names.map(n => [n.characteristic_id, { name: n.name, keyword: n.keyword }])
+      names.map(n => [n.characteristic_id, {
+        name:     n.name,
+        keyword:  n.keyword,
+        operator: n.operator,
+      }])
     ),
   }),
   setLoading:        (isLoading) => set({ isLoading }),
