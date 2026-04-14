@@ -36,7 +36,7 @@ export function WeaponEffects({ effects, mode, colors }: Props) {
           const label  = labels?.[language] ?? labels?.['en'] ?? `Effect ${eff.effectId}`;
           return (
             <EffectRow key={`weapon-${eff.effectId}-${i}`}
-              eff={eff} index={i} mode={mode} colors={colors}
+              eff={eff} index={i} mode={'range'} colors={colors}
               label={label} keyword={null} operator="+"/>
           );
         })}
