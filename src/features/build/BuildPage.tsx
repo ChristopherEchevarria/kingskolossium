@@ -11,10 +11,10 @@ import { useHeaderStore } from '../header/stores/headerStore';
 import { EquipmentSearchBar } from './components/EquipmentSearchBar';
 import { EquipmentFilter } from './components/EquipmentFilter';
 import { EquipmentGrid } from './components/EquipmentGrid';
-import { fetchEquipmentTypes } from '../../api/equipment';
+import { fetchEquipmentTypes,fetchCharacteristics } from '../../api/equipment';
 
 export function BuildPage() {
-  const { setEquipmentTypes } = useBuildStore();
+  const { setEquipmentTypes,setCharacteristicNames } = useBuildStore();
   const { language } = useHeaderStore();
 
   // Load equipment types on mount (for filter pills)
@@ -22,7 +22,11 @@ export function BuildPage() {
     fetchEquipmentTypes(language)
       .then(setEquipmentTypes)
       .catch(err => console.error('[BuildPage] Failed to load types:', err));
-  }, [language, setEquipmentTypes]);
+
+    fetchCharacteristics(language)
+      .then(setCharacteristicNames)
+      .catch(err => console.error('[BuildPage] Failed to load characteristics:', err));
+  }, [language, setEquipmentTypes,setCharacteristicNames]);
 
   return (
     <div className="flex flex-col gap-3">

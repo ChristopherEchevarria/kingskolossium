@@ -5,32 +5,42 @@ Date of creation: 09Apr2026
 Purpose and Description: Responsive grid container for EquipmentCards with pagination
 ***/
 
-import { useEffect, useCallback } from 'react';
-import { useBuildStore } from '../stores/buildStore';
+import { useEffect, useCallback, useMemo } from 'react';
+import { useBuildStore, EQUIPMENT_SUPER_TYPE_IDS } from '../stores/buildStore';
 import { useHeaderStore } from '../../header/stores/headerStore';
 import { EquipmentCard } from './EquipmentCard';
 import { fetchEquipment, searchEquipment } from '../../../api/equipment';
 
 export function EquipmentGrid() {
   const {
-    equipmentItems, totalItems, isLoading,
+    equipmentItems,equipmentTypes, totalItems, isLoading,
     searchQuery, activeTypeFilters, currentPage, pageSize,
     setEquipmentItems, setLoading, setCurrentPage,
   } = useBuildStore();
 
   const { language } = useHeaderStore();
 
+  const allEquipmentTypeIds = useMemo(
+    () => equipmentTypes
+      .filter(t => EQUIPMENT_SUPER_TYPE_IDS.has(t.super_type_id))
+      .map(t => t.type_id),
+    [equipmentTypes],
+  );
+
+
   // ── Load equipment based on current filters ─────────────────────────────
   const loadItems = useCallback(async () => {
+    if (allEquipmentTypeIds.length === 0) return; // wait for types to load
     setLoading(true);
     try {
+      const typeIds = activeTypeFilters.size > 0
+        ? Array.from(activeTypeFilters)
+        : allEquipmentTypeIds;           // "All" = equipment only, never undefined
+
       if (searchQuery.trim()) {
-        const results = await searchEquipment(searchQuery, 40, language);
+        const results = await searchEquipment(searchQuery, 40, language, typeIds);
         setEquipmentItems(results, results.length);
       } else {
-        const typeIds = activeTypeFilters.size > 0
-          ? Array.from(activeTypeFilters)
-          : undefined;
         const data = await fetchEquipment(
           currentPage * pageSize,
           pageSize,
@@ -47,9 +57,8 @@ export function EquipmentGrid() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, activeTypeFilters, currentPage, pageSize, language,
-      setEquipmentItems, setLoading]);
-
+  }, [searchQuery, activeTypeFilters, allEquipmentTypeIds, currentPage, pageSize,
+      language, setEquipmentItems, setLoading]);
   useEffect(() => {
     loadItems();
   }, [loadItems]);
@@ -122,6 +131,7 @@ export function EquipmentGrid() {
             <EquipmentCard
               key={item.item_id}
               item={item}
+              superTypeId={item.super_type_id}
             />
           ))}
         </div>

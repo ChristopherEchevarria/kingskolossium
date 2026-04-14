@@ -12,6 +12,7 @@ import { apiClient } from './client';
 export interface EquipmentItem {
   item_id:     number;
   type_id:     number;
+  super_type_id number;
   item_set_id: number | null;
   level:       number;
   icon_id:     number;
@@ -47,6 +48,12 @@ export interface EquipmentListResponse {
   limit: number;
 }
 
+export interface CharacteristicName {
+  characteristic_id: number;
+  keyword:           string;
+  name:              string;
+}
+
 // ─── API Methods ─────────────────────────────────────────────────────────────
 
 export async function fetchEquipment(
@@ -76,10 +83,17 @@ export async function searchEquipment(
   query: string,
   limit = 20,
   lang = 'en',
+  typeIds?: number[],
 ): Promise<EquipmentItem[]> {
-  const response = await apiClient.get(
-    `/api/equipment/search?q=${encodeURIComponent(query)}&limit=${limit}&lang=${lang}`,
-  );
+  const params = new URLSearchParams({
+    q:     encodeURIComponent(query),
+    limit: String(limit),
+    lang,
+  });
+  if (typeIds && typeIds.length > 0 ) {
+    params.set('type_ids', typeIds.join(','));
+  }
+  const response = await apiClient.get(`/api/equipment/search?${params}`);
   return response.data;
 }
 
@@ -95,5 +109,10 @@ export async function fetchEquipmentDetail(
   lang = 'en',
 ): Promise<EquipmentItem> {
   const response = await apiClient.get(`/api/equipment/${itemId}?lang=${lang}`);
+  return response.data;
+}
+
+export async function fetchCharacteristics(lang = 'en'): Promise<CharacteristicName[]> {
+  const response = await apiClient.get(`/api/characteristics/?lang=${lang}`);
   return response.data;
 }

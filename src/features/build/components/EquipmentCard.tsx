@@ -7,6 +7,7 @@ Purpose and Description: Single equipment card — colored by super_type, name, 
 
 import type { EquipmentItem } from '../../../api/equipment';
 import { API_BASE_URL } from '../../../api/client';
+import { useBuildStore } from '../stores/buildStore';
 
 // ─── Super type color system (matches pill colors in BuildPage) ──────────────
 const SUPER_TYPE_CARD_COLORS: Record<number, {
@@ -29,22 +30,6 @@ const DEFAULT_CARD_COLOR = {
   accent: '#5BC0F5', badge: 'rgba(0,95,142,0.25)',
 };
 
-// ─── Effect ID → readable stat name mapping (Dofus 3.x) ──────────────────────
-const EFFECT_NAMES: Record<number, string> = {
-  111: 'AP',        118: 'MP',          119: 'Vitality',
-  112: 'Damage',    120: 'Range',       121: 'Strength',
-  115: 'Dodge',     122: 'Chance',      123: 'Agility',
-  116: 'Lock',      124: 'Intelligence', 125: 'Critical',
-  117: 'AP Parry',  126: 'Wisdom',      128: 'MP Parry',
-  138: 'Power',     160: 'Pods',        174: 'Initiative',
-  176: 'Prospecting', 182: 'Summons',
-  142: '% Earth Res',  143: '% Water Res',
-  144: '% Air Res',    145: '% Fire Res',   146: '% Neutral Res',
-};
-
-function getEffectLabel(effectId: number): string {
-  return EFFECT_NAMES[effectId] ?? `Effect ${effectId}`;
-}
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -55,11 +40,27 @@ interface EquipmentCardProps {
 }
 
 export function EquipmentCard({ item, superTypeId, onClick }: EquipmentCardProps) {
+
+  const { characteristicNames } = useBuildStore();
   const iconUrl = item.icon_id
     ? `${API_BASE_URL}/assets/items/${item.icon_id}-128.png`
     : null;
+  const characteristicIconUrl = item.icon_id
+  ? `${API_BASE_URL}/assets/items/${item.icon_id}-128.png`
+  : null;
 
-  const effects = (item.effects ?? []).slice(0, 6);
+
+
+    function getEffectInfo(effectId: number): { name: string; iconUrl: string | null } {
+        const entry = characteristicNames.get(effectId);
+        if (!entry) return { name: `Effect ${effectId}`, iconUrl: null };
+        return {
+          name:    entry.name,
+          iconUrl: `${API_BASE_URL}/assets/characteristic-icons/${entry.keyword}.png`,
+        };
+      }
+
+  const effects = item.effects ?? [];
   const colors = SUPER_TYPE_CARD_COLORS[superTypeId ?? 0] ?? DEFAULT_CARD_COLOR;
 
   return (
@@ -83,8 +84,6 @@ export function EquipmentCard({ item, superTypeId, onClick }: EquipmentCardProps
     >
       {/* Header — icon + name + level */}
       <div className="flex items-center gap-2.5 p-2.5">
-        {/* Item icon */}
-        {/* Name + type */}
         <div className="flex-1 min-w-0">
           <span className="text-white font-mono text-xs font-bold leading-tight truncate block">
             {item.name || `Item #${item.item_id}`}
@@ -97,10 +96,7 @@ export function EquipmentCard({ item, superTypeId, onClick }: EquipmentCardProps
           </span>
        </div>
 
-
-
         {/* Level badge — tinted to match */}
-
         <div
           className="flex-shrink-0 px-1.5 py-0.5 rounded"
           style={{ background: colors.badge, border: `1px solid ${colors.border}` }}
@@ -113,7 +109,7 @@ export function EquipmentCard({ item, superTypeId, onClick }: EquipmentCardProps
           </span>
         </div>
       </div>
-      {}
+      {/* Item img */}
       <div className = "flex flex-col">
         <div
           className="w-25 h-25 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden"
@@ -132,44 +128,62 @@ export function EquipmentCard({ item, superTypeId, onClick }: EquipmentCardProps
             <span className="text-white/20 text-xs font-mono">{item.type_id}</span>
           )}
           </div>
-
-         <span className="text-white/90 text-bottom">
-                  {"label"}
-         </span>
         </div>
 
       {/* Stats — 2-column layout: Value (colored) | Label (white) */}
 
-
       {effects.length > 0 && (
-        <div className="px-3 pb-3 flex flex-col gap-1 text-sm ">
-          {effects.map((eff, i) => {
-            const val = eff.diceNum !== undefined && eff.diceSide !== undefined && eff.diceNum !== eff.diceSide
-              ? `${eff.diceNum}–${eff.diceSide}`
-              : String(eff.diceNum ?? eff.value ?? 0);
+        <div className="px-3 pb-3 flex flex-col gap-1">
 
-            const label = getEffectLabel(eff.effectId);
-            const isPositive = (eff.diceNum ?? eff.value ?? 0) >= 0;
+          {effects.map((eff, i) => {
+
+            const isRange    = eff.diceNum !== undefined && eff.diceSide !== undefined && eff.diceNum !== eff.diceSide;
+            const isNegative = isRange ? eff.diceNum > eff.diceSide : (eff.diceNum ?? eff.value ?? 0) < 0;
+            const val        = isRange
+              ? isNegative
+                ? `${eff.diceNum}–${eff.diceSide}`
+                : `${eff.diceNum}–${eff.diceSide}`
+              : String(eff.diceNum ?? eff.value ?? 0);
+            const { name: label, iconUrl: charIconUrl } = getEffectInfo(eff.effectId);
+            const isPositive = !isNegative;
 
             return (
               <div
                 key={`${eff.effectId}-${i}`}
-                className="grid grid-cols-[auto,1fr] gap-x-2 items-baseline font-mono text-[10px]"
+                className="grid grid-cols-[12px,auto,1fr] gap-x-2 items-center font-mono text-[10px]"
               >
-                {/* Value Column - Green / Red */}
+                {/* Icon — img or same-size dot fallback */}
+                {charIconUrl ? (
+                  <img
+                    src={charIconUrl}
+                    className="w-4 h-4 object-contain flex-shrink-0"
+                    onError={(e) => {
+                      const el = e.target as HTMLImageElement;
+                      el.style.display = 'none';
+                      const dot = el.nextElementSibling as HTMLElement | null;
+                      if (dot) dot.style.display = 'block';
+                    }}
+                  />
+                ) : null}
+                {/* Dot — shown when no img, or as img fallback */}
                 <span
-                  className="font-bold tabular-nums text-left w-12"
+                  className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{
-                    color: isPositive ? '#4ade80' : '#f87171',   // Green / Red
+                    background: colors.accent,
+                    display: charIconUrl ? 'none' : 'block',
                   }}
+                />
+
+                {/* Value */}
+                <span
+                  className="font-bold tabular-nums text-right"
+                  style={{ color: isPositive ? '#4ade80' : '#f87171' }}
                 >
                   {val}
                 </span>
 
-                {/* Label Column - White */}
-                <span className="text-white/90 text-left">
-                  {label}
-                </span>
+                {/* Label */}
+                <span className="text-white/80 text-left truncate">{label}</span>
               </div>
             );
           })}
@@ -179,7 +193,7 @@ export function EquipmentCard({ item, superTypeId, onClick }: EquipmentCardProps
       {/* Set indicator */}
       {item.item_set_id && (
         <div className="px-3 pb-3 text-[9px] italic text-white/50 text-bottom">
-          Part of {item.set_name || 'a set'}
+          {item.set_name || 'a set'}
         </div>
       )}
     </div>

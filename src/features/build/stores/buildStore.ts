@@ -6,13 +6,14 @@ Purpose and Description: Zustand store for equipment browser, filters, search
 ***/
 
 import { create } from 'zustand';
-import type { EquipmentItem, EquipmentType } from '../../../api/equipment';
+import type { EquipmentItem, EquipmentType, CharacteristicName } from '../../../api/equipment';
 
 interface BuildState {
   // ── Equipment browser ────────────────────────────────────────────────────
   equipmentItems:    EquipmentItem[];
   equipmentTypes:    EquipmentType[];
   totalItems:        number;
+  characteristicNames: Map<number, string>;
   isLoading:         boolean;
 
   // ── Search & filter ──────────────────────────────────────────────────────
@@ -24,6 +25,7 @@ interface BuildState {
   // ── Actions ──────────────────────────────────────────────────────────────
   setEquipmentItems:   (items: EquipmentItem[], total: number) => void;
   setEquipmentTypes:   (types: EquipmentType[]) => void;
+  setCharacteristicNames:(names: CharacteristicName[]) => void;
   setLoading:          (loading: boolean) => void;
   setSearchQuery:      (query: string) => void;
   toggleTypeFilter:    (typeId: number) => void;
@@ -37,6 +39,7 @@ export const EQUIPMENT_SUPER_TYPE_IDS = new Set([1, 2, 3, 4, 5, 7, 10, 11, 12, 1
 export const useBuildStore = create<BuildState>((set) => ({
   equipmentItems:    [],
   equipmentTypes:    [],
+  characteristicNames: new Map<number, string>(),
   totalItems:        0,
   isLoading:         false,
 
@@ -47,6 +50,11 @@ export const useBuildStore = create<BuildState>((set) => ({
 
   setEquipmentItems: (items, total) => set({ equipmentItems: items, totalItems: total }),
   setEquipmentTypes: (types) => set({ equipmentTypes: types }),
+  setCharacteristicNames: (names) => set({
+    characteristicNames: new Map(
+      names.map(n => [n.characteristic_id, { name: n.name, keyword: n.keyword }])
+    ),
+  }),
   setLoading:        (isLoading) => set({ isLoading }),
   setSearchQuery:    (searchQuery) => set({ searchQuery, currentPage: 0 }),
 
