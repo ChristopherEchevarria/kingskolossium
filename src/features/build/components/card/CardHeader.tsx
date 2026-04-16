@@ -5,13 +5,15 @@ Path:/kingskolossium/src/features/build/components/card/CardHeader.tsx
 import type { EquipmentItem } from '../../../../api/equipment';
 import { API_BASE_URL } from '../../../../api/client';
 import type { CardColors } from './cardColors';
+import { BorderBeam } from 'border-beam';
 
 interface Props {
   item:   EquipmentItem;
   colors: CardColors;
+  isLegendary: boolean;
 }
 
-export function CardHeader({ item, colors }: Props) {
+export function CardHeader({ item, colors,isLegendary }: Props) {
   const iconUrl = item.icon_id
     ? `${API_BASE_URL}/assets/items/${item.icon_id}-128.png`
     : null;
@@ -42,21 +44,45 @@ export function CardHeader({ item, colors }: Props) {
       </div>
 
       {/* Item image */}
-      <div
-        className="mx-auto rounded-md flex items-center justify-center overflow-hidden"
-        style={{ width: 80, height: 80, background: 'rgba(0,0,0,0.25)' }}
-      >
-        {iconUrl ? (
-          <img
-            src={iconUrl}
-            alt={item.name}
-            className="w-full h-full object-contain"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-          />
-        ) : (
-          <span className="text-white/20 text-xs font-mono">{item.type_id}</span>
-        )}
-      </div>
+      {isLegendary ? (
+        <BorderBeam size="md" colorVariant="colorful" duration={6} strength={1}>
+          <div
+            className="mx-auto relative rounded-lg overflow-hidden"
+            style={{ width: 80, height: 80 }}
+          >
+            <div className="w-full h-full flex items-center justify-center">
+              {iconUrl ? (
+                <img
+                  src={iconUrl}
+                  alt={item.name}
+                  className="w-full h-full object-contain"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                />
+              ) : (
+                <span className="text-white/20 text-xs font-mono">{item.type_id}</span>
+              )}
+            </div>
+          </div>
+        </BorderBeam>
+      ) : (
+        <div
+          className="mx-auto relative rounded-lg overflow-hidden"
+          style={{ width: 80, height: 80 }}
+        >
+          <div className="w-full h-full flex items-center justify-center">
+            {iconUrl ? (
+              <img
+                src={iconUrl}
+                alt={item.name}
+                className="w-full h-full object-contain"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
+            ) : (
+              <span className="text-white/20 text-xs font-mono">{item.type_id}</span>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -30,9 +30,4 @@ export const DEFAULT_CARD_COLOR: CardColors = {
   badge:  'rgba(0,95,142,0.25)',
 };
 
-// Weapon-specific effect IDs — rendered separately from characteristic stats
-export const WEAPON_EFFECT_IDS = new Set([
-  108, 105, 102, 101, 100, 99, 98, 96, 94, 93, 92, 91, 89, 5,
-]);
-
 export type CardMode = 'max' | 'range' | 'recipe';

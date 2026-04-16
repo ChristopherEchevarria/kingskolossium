@@ -1,96 +1,80 @@
-/***
-Path:/kingskolossium/src/features/build/components/card/EffectRow.tsx
-***/
-
+import type { MappedEffect } from '../../../../api/equipment';
+import type { CardColors, CardMode } from './cardColors';
 import { API_BASE_URL } from '../../../../api/client';
-import type { EquipmentEffect } from '../../../../api/equipment';
-import type { CardMode, CardColors } from './cardColors';
 
 interface EffectRowProps {
-  eff:      EquipmentEffect;
-  index:    number;
-  mode:     CardMode;
-  colors:   CardColors;
-  label:    string;
-  keyword:  string | null;
-  operator: string;           // "+" or "-" from effect_definitions
+  eff:    MappedEffect;
+  index:  number;
+  lang:   string;
+  colors: CardColors;
+  mode:   CardMode;
 }
 
-export function resolveVal(
-  eff: EquipmentEffect,
-  mode: CardMode,
-  operator: string,
-): { val: string; isNegative: boolean } {
-  // Operator from DB is ground truth for sign — never infer from diceNum/diceSide
-  const isNegative = operator === '-';
-  const absA = Math.abs(eff.diceNum);
-  const absB = Math.abs(eff.diceSide);
-  const hasRange = absA !== absB && absB !== 0;
+/**
+ * In 'max' mode: replace the leading "X to Y" range with just "Y".
+ * e.g. "351 to 400 Vitality" → "400 Vitality"
+ *      "-20 Dodge"           → "-20 Dodge"   (no range, unchanged)
+ */
+function resolveDisplay(eff: MappedEffect, lang: string, mode: CardMode): string {
+  const raw = eff.templated[lang as keyof typeof eff.templated]
+           || eff.templated.en
+           || `${eff.min}`;
 
-  let val: string;
+  // Single-value effects — always return raw regardless of mode
+  if (eff.min_max_irrelevant !== 0 || eff.min === eff.max) return raw;
 
   if (mode === 'max') {
-    // Max positive → largest absolute value; max negative → largest absolute, negated
-    const best = hasRange ? Math.max(absA, absB) : absA || eff.value || 0;
-    val = isNegative ? `-${best}` : String(best);
-  } else {
-    // Range mode
-    if (!hasRange) {
-      const single = absA || eff.value || 0;
-      val = isNegative ? `-${single}` : String(single);
-    } else {
-      const lo = Math.min(absA, absB);
-      const hi = Math.max(absA, absB);
-      val = isNegative ? `-${hi}–-${lo}` : `${lo}–${hi}`;
-    }
+    const label = raw.replace(/^-?\d+[^\d]+-?\d+\s*/, '');
+    return `${eff.max}${label ? ' ' + label.trim() : ''}`;
   }
 
-  return { val, isNegative };
+  // range — full templated string
+  return raw;
 }
 
-export function EffectRow({ eff, index, mode, colors, label, keyword, operator }: EffectRowProps) {
-  const { val, isNegative } = resolveVal(eff, mode, operator);
+export function EffectRow({ eff, index, lang, colors, mode }: EffectRowProps) {
+  if (mode === 'recipe') return null;
+  const display    = resolveDisplay(eff, lang, mode);
+  const isNegative = eff.min < 0 || (eff.min === 0 && eff.max < 0);
 
-  const iconUrl = keyword
-    ? `${API_BASE_URL}/assets/characteristic-icons/${keyword}.png`
+  // Icon keyword: English type name lowercased, spaces → underscores
+  // e.g. "Spell Damage" → "spell_damage", "Vitality" → "vitality"
+  const iconKeyword = (eff.type.en || '').toLowerCase().replace(/\s+/g, '_');
+  const iconUrl     = iconKeyword
+    ? `${API_BASE_URL}/assets/characteristic-icons/${iconKeyword}.png`
     : null;
 
   return (
     <div
-      key={`${eff.effectId}-${index}`}
-      className="grid grid-cols-[16px,auto,1fr] gap-x-2 items-center font-mono text-[10px]"
+      key={`effect-${eff.element_id}-${index}`}
+      className="grid grid-cols-[14px,1fr] gap-x-2 items-center font-mono text-[10px]"
     >
-      {/* Icon — hidden if missing, dot shown as fallback via onError */}
-      {iconUrl && (
+      {/* Characteristic icon — falls back to accent dot if image missing */}
+      {iconUrl ? (
         <img
           src={iconUrl}
-          className="w-4 h-4 object-contain flex-shrink-0"
+          alt=""
+          className="w-3.5 h-3.5 flex-shrink-0 object-contain"
           onError={(e) => {
-            const el = e.target as HTMLImageElement;
+            const el = e.currentTarget;
             el.style.display = 'none';
             const dot = el.nextElementSibling as HTMLElement | null;
-            if (dot) dot.style.removeProperty('display');
+            if (dot) dot.style.display = 'block';
           }}
         />
-      )}
+      ) : null}
       <span
-        className="w-2 h-2 rounded-full flex-shrink-0"
-        style={{
-          background: colors.accent,
-          display: iconUrl ? 'none' : 'block',
-        }}
+        className="w-1 h-1 rounded-full flex-shrink-0"
+        style={{ background: colors.accent, display: iconUrl ? 'none' : 'block' }}
       />
 
-      {/* Value — color speaks for itself, no sign prefix */}
+      {/* Display string — color indicates sign */}
       <span
-        className="font-bold tabular-nums text-right"
+        className="text-left truncate"
         style={{ color: isNegative ? '#f87171' : '#4ade80' }}
       >
-        {val}
+        {display}
       </span>
-
-      {/* Label */}
-      <span className="text-white/80 text-left truncate">{label}</span>
     </div>
   );
 }

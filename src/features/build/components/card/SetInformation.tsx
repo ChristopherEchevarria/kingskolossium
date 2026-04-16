@@ -16,10 +16,10 @@ interface Props { item: EquipmentItem; colors: CardColors; }
 
 export function SetInformation({ item, colors }: Props) {
   const { language } = useHeaderStore();
-  if (!item.item_set_id) return null;
+  if (!item.has_parent_set) return null;
 
   const prefix  = SET_PREFIX[language] ?? SET_PREFIX.en;
-  const setName = item.set_name || '';
+  const setName = item.parent_set_name || '';
 
   return (
     <div

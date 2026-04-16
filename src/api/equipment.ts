@@ -9,30 +9,47 @@ import { apiClient } from './client';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-export interface EquipmentItem {
-  item_id:     number;
-  type_id:     number;
-  super_type_id number;
-  item_set_id: number | null;
-  level:       number;
-  icon_id:     number;
-  name:        string;
-  description?: string;
-  type_name:   string;
-  set_name?:   string;
-  effects:     EquipmentEffect[] | null;
-  price:       number;
+export interface MappedEffectType {
+  en: string;
+  fr: string;
+  es: string;
+  de: string;
+  pt: string;
 }
 
-export interface EquipmentEffect {
-  effectId:      number;
-  baseEffectId:  number;
-  effectElement: number;
-  value:         number;
-  diceNum:       number;
-  diceSide:      number;
-  order:         number;
+export interface MappedEffect {
+  min:                number;
+  max:                number;
+  type:               MappedEffectType;
+  templated:          MappedEffectType;
+  element_id:         number;
+  keyword:            string ;   // camelCase Dofus identifier e.g. "vitality", "actionPoints"
+  is_meta:            boolean;
+  active:             boolean;
+  min_max_irrelevant: number;
 }
+
+export interface EquipmentItem {
+  item_id:           number;
+  type_id:           number | null;
+  super_type_id:     number | null;
+  level:             number;
+  icon_id:           number | null;
+  name:              string;
+  description:       string;
+  type_name:         string;
+  parent_set_id:     number | null;
+  parent_set_name:   string | null;
+  has_parent_set:    boolean;
+  effects:           MappedEffect[] | null;
+  ap_cost:           number;
+  range:             number;
+  min_range:         number;
+  crit_hit_bonus:    number;
+  crit_hit_prob:     number;
+  max_cast_per_turn: number;
+}
+
 
 export interface EquipmentType {
   type_id:       number;
@@ -46,13 +63,6 @@ export interface EquipmentListResponse {
   total: number;
   skip:  number;
   limit: number;
-}
-
-export interface CharacteristicName {
-  characteristic_id: number;
-  keyword:           string;
-  name:              string;
-  operator:          string;   // "+" or "-"
 }
 
 // ─── API Methods ─────────────────────────────────────────────────────────────
@@ -110,10 +120,5 @@ export async function fetchEquipmentDetail(
   lang = 'en',
 ): Promise<EquipmentItem> {
   const response = await apiClient.get(`/api/equipment/${itemId}?lang=${lang}`);
-  return response.data;
-}
-
-export async function fetchCharacteristics(lang = 'en'): Promise<CharacteristicName[]> {
-  const response = await apiClient.get(`/api/characteristics/?lang=${lang}`);
   return response.data;
 }

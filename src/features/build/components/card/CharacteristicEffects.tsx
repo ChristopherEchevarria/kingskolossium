@@ -2,37 +2,32 @@
 Path:/kingskolossium/src/features/build/components/card/CharacteristicEffects.tsx
 ***/
 
-import { useBuildStore } from '../../stores/buildStore';
+import { useHeaderStore } from '../../../header/stores/headerStore';
 import { EffectRow } from './EffectRow';
-import type { EquipmentEffect } from '../../../../api/equipment';
+import type { MappedEffect } from '../../../../api/equipment';
 import type { CardMode, CardColors } from './cardColors';
 
-interface Props { effects: EquipmentEffect[]; mode: CardMode; colors: CardColors; }
+interface Props { effects: MappedEffect[]; colors: CardColors;  mode: CardMode;}
 
-export function CharacteristicEffects({ effects, mode, colors }: Props) {
-  const { characteristicNames } = useBuildStore();
+export function CharacteristicEffects({ effects, colors,mode }: Props) {
+  const { language } = useHeaderStore();
 
-  const positives = effects.filter(e => (characteristicNames.get(e.effectId)?.operator ?? '+') === '+');
-  const negatives = effects.filter(e => (characteristicNames.get(e.effectId)?.operator ?? '+') === '-');
-
-  function renderRow(eff: EquipmentEffect, i: number, prefix: string) {
-    const entry = characteristicNames.get(eff.effectId);
-    return (
-      <EffectRow key={`${prefix}-${eff.effectId}-${i}`}
-        eff={eff} index={i} mode={mode} colors={colors}
-        label={entry?.name    ?? `Effect ${eff.effectId}`}
-        keyword={entry?.keyword  ?? null}
-        operator={entry?.operator ?? '+'} />
-    );
-  }
+  const positives = effects.filter(e => e.min >= 0);
+  const negatives = effects.filter(e => e.min < 0);
 
   return (
     <div className="px-3 pt-1 pb-2 flex flex-col gap-1">
-      {positives.map((eff, i) => renderRow(eff, i, 'pos'))}
+      {positives.map((eff, i) => (
+        <EffectRow key={`pos-${eff.element_id}-${i}`}
+          eff={eff} index={i} lang={language} colors={colors} mode={mode} />
+      ))}
       {negatives.length > 0 && positives.length > 0 && (
         <div className="border-t my-0.5" style={{ borderColor: `${colors.accent}22` }} />
       )}
-      {negatives.map((eff, i) => renderRow(eff, i, 'neg'))}
+      {negatives.map((eff, i) => (
+        <EffectRow key={`neg-${eff.element_id}-${i}`}
+          eff={eff} index={i} lang={language} colors={colors} mode={mode} />
+      ))}
     </div>
   );
 }
