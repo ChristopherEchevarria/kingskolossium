@@ -2,6 +2,9 @@ import type { MappedEffect } from '../../../../api/equipment';
 import type { CardColors, CardMode } from './cardColors';
 import { API_BASE_URL } from '../../../../api/client';
 
+const FALLBACK_ICON = `${API_BASE_URL}/assets/characteristic-icons/24-64.png`;
+
+
 interface EffectRowProps {
   eff:    MappedEffect;
   index:  number;
@@ -39,7 +42,11 @@ export function EffectRow({ eff, index, lang, colors, mode }: EffectRowProps) {
 
   // Icon keyword: English type name lowercased, spaces → underscores
   // e.g. "Spell Damage" → "spell_damage", "Vitality" → "vitality"
-  const iconKeyword = (eff.type.en || '').toLowerCase().replace(/\s+/g, '_');
+  const typeEn      = eff.type.en || '';
+  // Spell-modifier effects start with ':' — they have no characteristic icon
+  const iconKeyword = typeEn.includes(':') || typeEn.startsWith('/')
+    ? null
+    : typeEn.toLowerCase().replace(/\s+/g, '_');
   const iconUrl     = iconKeyword
     ? `${API_BASE_URL}/assets/characteristic-icons/${iconKeyword}.png`
     : null;
@@ -49,23 +56,21 @@ export function EffectRow({ eff, index, lang, colors, mode }: EffectRowProps) {
       key={`effect-${eff.element_id}-${index}`}
       className="grid grid-cols-[14px,1fr] gap-x-2 items-center font-mono text-[10px]"
     >
-      {/* Characteristic icon — falls back to accent dot if image missing */}
-      {iconUrl ? (
-        <img
-          src={iconUrl}
-          alt=""
-          className="w-3.5 h-3.5 flex-shrink-0 object-contain"
-          onError={(e) => {
-            const el = e.currentTarget;
-            el.style.display = 'none';
-            const dot = el.nextElementSibling as HTMLElement | null;
-            if (dot) dot.style.display = 'block';
-          }}
-        />
-      ) : null}
+      <img
+        src={iconUrl ?? FALLBACK_ICON}
+        alt=""
+        className="w-3.5 h-3.5 flex-shrink-0 object-contain"
+        onError={(e) => {
+          // If even the fallback fails, swap to a colored dot via inline style
+          const el = e.currentTarget;
+          el.style.display = 'none';
+          const dot = el.nextElementSibling as HTMLElement | null;
+          if (dot) dot.style.display = 'block';
+        }}
+      />
       <span
-        className="w-1 h-1 rounded-full flex-shrink-0"
-        style={{ background: colors.accent, display: iconUrl ? 'none' : 'block' }}
+        className="w-1 h-1 rounded-full flex-shrink-0 hidden"
+        style={{ background: colors.accent }}
       />
 
       {/* Display string — color indicates sign */}
