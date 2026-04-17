@@ -131,7 +131,7 @@ export function EquipmentGrid() {
             <EquipmentCard
               key={item.item_id}
               item={item}
-              superTypeId={item.super_type_id}
+              superTypeId={item.super_type_id ?? undefined}
             />
           ))}
         </div>

@@ -52,7 +52,7 @@ export function EquipmentCard({ item, superTypeId, onClick }: EquipmentCardProps
         <CharacteristicEffects effects={statEffects} colors={colors} mode={mode} />
       )}
 
-      <ItemDescription item={item} colors={colors} mode={mode} />
+      <ItemDescription item={item} mode={mode} />
       <SetInformation item={item} colors={colors} />
     </div>
   );

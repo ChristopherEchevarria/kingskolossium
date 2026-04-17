@@ -6,12 +6,11 @@ Purpose: Displays special passive text, legendary bonuses, and other non-stat ef
 
 import type { EquipmentItem, MappedEffect } from '../../../../api/equipment';
 import { useHeaderStore } from '../../../header/stores/headerStore';
-import type { CardColors, CardMode } from './cardColors';
+import type { CardMode } from './cardColors';
 import { BorderBeam } from 'border-beam';
 
 interface Props {
   item:   EquipmentItem;
-  colors: CardColors;
   mode:   CardMode;
 }
 
@@ -22,7 +21,7 @@ const LEGENDARY_COLORS = {
   textDim: 'rgba(255,255,255,0.25)',
 };
 
-export function ItemDescription({ item, colors, mode }: Props) {
+export function ItemDescription({ item, mode }: Props) {
 
   const { language } = useHeaderStore();
 

@@ -44,12 +44,9 @@ export function SiteHeader() {
         ">
           <LoginButton  isLoggedIn={isLoggedIn} nickname={nickname} />
           <LanguageSelector />
-          <HamburgerMenu isLoggedIn={isLoggedIn} nickname={nickname} onLogout={handleLogout} />
+          <HamburgerMenu isLoggedIn={isLoggedIn} onLogout={handleLogout} />
         </div>
       </div>
-
-
-
     </header>
   );
 }

@@ -9,11 +9,10 @@ import { useHeaderStore } from '../stores/headerStore';
 
 interface HamburgerMenuProps {
   isLoggedIn: boolean;
-  nickname?:  string;
   onLogout:   () => void;
 }
 
-export function HamburgerMenu({ isLoggedIn, nickname, onLogout }: HamburgerMenuProps) {
+export function HamburgerMenu({ isLoggedIn, onLogout }: HamburgerMenuProps) {
   const { menuOpen, toggleMenu, closeMenu, language } = useHeaderStore();
 
   // When logged out, the button renders but the panel does nothing interactive
