@@ -149,7 +149,7 @@ export function getAdjacentCells(cellId: number): number[] {
 export function gridToScreen(row: number, col: number): { x: number; y: number } {
   const isOdd = row % 2 === 1;
   return {
-    x: col * CELL_WIDTH + (isOdd ? CELL_WIDTH / 2 : 0),
+    x: col * CELL_WIDTH + (isOdd ? CELL_WIDTH / 2 : 0) + 15,
     y: GRID_PADDING + row * (CELL_HEIGHT / 2),
   };
 }

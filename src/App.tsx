@@ -15,7 +15,6 @@ import type { BadgeStatus } from './features/auth/stores/authStore';
 import { fetchCurrentUser }      from './api/auth';
 
 
-
 export default function App() {
   const { user, token, setAuth, logout } = useAuthStore();
 
