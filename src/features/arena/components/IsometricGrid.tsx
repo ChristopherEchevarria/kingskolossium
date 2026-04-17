@@ -8,8 +8,6 @@ Purpose and Description: SVG grid, entity sprites, LOS overlay
 import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { useArenaStore, GridEntity } from '../stores/arenaStore';
 import {
-  GRID_COLS,
-  GRID_ROWS,
   TOTAL_CELLS,
   CELL_DEPTH,
   CELL_WIDTH,
