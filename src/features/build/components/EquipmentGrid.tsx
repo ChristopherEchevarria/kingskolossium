@@ -78,13 +78,7 @@ export function EquipmentGrid() {
     <div className="flex flex-col gap-3">
       {/* Results count + pagination header */}
       <div className="flex items-center justify-between px-1">
-        <span className="text-[#5BC0F5]/60 font-mono text-xs">
-          {isLoading
-            ? 'Loading...'
-            : `${totalItems.toLocaleString()} items`
-          }
-          {activeTypeFilters.size > 0 && !isLoading && ' (filtered)'}
-        </span>
+
 
         {totalPages > 1 && !searchQuery.trim() && (
           <div className="flex items-center gap-2">
@@ -109,6 +103,14 @@ export function EquipmentGrid() {
             </button>
           </div>
         )}
+
+        <span className="text-[#5BC0F5]/60 font-mono text-xs">
+          {isLoading
+            ? 'Loading...'
+            : `${totalItems.toLocaleString()} items`
+          }
+          {activeTypeFilters.size > 0 && !isLoading && ' (filtered)'}
+        </span>
       </div>
 
       {/* Grid */}
@@ -136,6 +138,30 @@ export function EquipmentGrid() {
           ))}
         </div>
       )}
+
+    {totalPages > 1 && !searchQuery.trim() && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={goPrev}
+              disabled={currentPage === 0}
+              className="text-white/60 disabled:text-white/20 font-mono text-xs
+                         hover:text-[#5BC0F5] transition-colors"
+            >
+              Prev
+            </button>
+            <span className="text-[#5BC0F5]/60 font-mono text-[10px]">
+              {currentPage + 1}/{totalPages}
+            </span>
+            <button
+              onClick={goNext}
+              disabled={currentPage >= totalPages - 1}
+              className="text-white/60 disabled:text-white/20 font-mono text-xs
+                         hover:text-[#5BC0F5] transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        )}
     </div>
   );
 }
