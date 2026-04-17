@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginUser, fetchCurrentUser } from '../../api/auth';
 import { useAuthStore } from './stores/authStore';
-import type { BadgeStatus }      from './stores/authStore';
+import type { BadgeStatus } from './stores/authStore';
 
 export function LoginPage() {
   const navigate  = useNavigate();
@@ -23,10 +23,10 @@ export function LoginPage() {
       const { access_token } = await loginUser({ email, password });
       localStorage.setItem('kk_token', access_token);
       const user = await fetchCurrentUser();
-      setAuth({ ...user, badge_status: user.badge_status as BadgeStatus }, access_token);
+      setAuth({ ...user, badge_status: user.badge_status as BadgeStatus}, access_token);
       navigate('/');
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : null;
+      const msg = e instanceof Error ? e.message : undefined;
       const detail = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
       setError(detail ?? msg ?? 'Invalid email or password.');
     } finally {

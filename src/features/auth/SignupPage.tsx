@@ -6,7 +6,7 @@ import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser, fetchCurrentUser } from '../../api/auth';
 import { useAuthStore } from './stores/authStore';
-import type { BadgeStatus }      from './stores/authStore';
+import type { BadgeStatus } from './stores/authStore';
 
 interface Req { label: string; met: boolean; }
 
