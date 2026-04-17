@@ -16,7 +16,7 @@ export function ArenaPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center py-6 px-4">
-      <div className="w-full flex flex-col gap-3 overflow-hidden" style={{ maxWidth: '65%' }}>
+      <div className="w-full flex flex-col gap-3 overflow-hidden" style={{ maxWidth: '90%' }}>
         <ModeToggle />
         {mode === 'combat' && <CombatMode />}
         {mode === 'build' && (

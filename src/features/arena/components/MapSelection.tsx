@@ -63,7 +63,12 @@ export function MapSelection() {
   }
 
   return (
-      <div className="flex items-center gap-1 w-full overflow-hidden">
+      <div className="flex items-center gap-1 overflow-hidden"
+        style={{
+        display: 'flex',
+        justifyContent: 'center',
+        }}
+      >
         {/* Left arrow */}
         <button
           onClick={goLeft}
@@ -75,7 +80,7 @@ export function MapSelection() {
         </button>
 
         {/* Cards container — overflow-hidden prevents right-card bleed */}
-        <div className="flex gap-3 flex-1 min-w-0 overflow-hidden">
+        <div className="flex gap-10 flex-1 min-w-0 max-w-[80%] overflow-hidden" >
           {/* Left slot */}
           {selectedMapIndex > 0 ? (
             <div className="flex-1 min-w-0 max-w-[33%]" style={{ containerType: 'inline-size' }}>
