@@ -12,3 +12,5 @@ export { MapSearchBar } from './components/MapSearchBar';
 export { MapSelection } from './components/MapSelection';
 export { IsometricGrid } from './components/IsometricGrid';
 export { useArenaStore } from './stores/arenaStore';
+export { ModeToggle } from './components/ModeToggle';
+export { CombatMode } from './components/CombatMode';

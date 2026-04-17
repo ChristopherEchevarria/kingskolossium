@@ -11,8 +11,10 @@ import { ArenaPage }             from './features/arena';
 import { SignupPage, LoginPage } from './features/auth';
 import { SiteHeader }            from './features/header/SiteHeader';
 import { useAuthStore }          from './features/auth/stores/authStore';
+import type { BadgeStatus } from './features/auth/stores/authStore';
 import { fetchCurrentUser }      from './api/auth';
 import type { BadgeStatus } from './features/auth/stores/authStore';
+
 
 export default function App() {
   const { user, token, setAuth, logout } = useAuthStore();

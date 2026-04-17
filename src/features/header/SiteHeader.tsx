@@ -47,9 +47,6 @@ export function SiteHeader() {
           <HamburgerMenu isLoggedIn={isLoggedIn} onLogout={handleLogout} />
         </div>
       </div>
-
-
-
     </header>
   );
 }

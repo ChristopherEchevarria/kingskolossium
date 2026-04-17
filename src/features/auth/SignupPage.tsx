@@ -47,7 +47,7 @@ export function SignupPage() {
       const { access_token } = await registerUser({ nickname, email, password });
       localStorage.setItem('kk_token', access_token);
       const user = await fetchCurrentUser();
-      setAuth({ ...user, badge_status: user.badge_status as BadgeStatus  }, access_token);
+      setAuth({ ...user, badge_status: user.badge_status as BadgeStatus }, access_token);
       navigate('/');
     } catch (e: unknown) {
       const detail = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
