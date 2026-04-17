@@ -12,7 +12,7 @@ export const CELL_WIDTH_1080P = 220;  // pixels at 1920×1080
 export const CELL_HEIGHT_1080P = 110;
 export const CELL_WIDTH = 40;
 export const CELL_HEIGHT = 20;
-export const GRID_PADDING = 30;
+export const GRID_PADDING = 45;
 // ── 3D extrusion depth (pixels in SVG space) ─────────────────────────────────
 // Increase this number to make tiles look taller.
 export const CELL_DEPTH = 10;

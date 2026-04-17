@@ -432,6 +432,10 @@ export function IsometricGrid() {
     <div
       ref={containerRef}
       className="w-full h-full relative"
+      style={{
+      display: 'flex',
+      justifyContent: 'center',
+    }}
     >
       {/* Reset button */}
       <button
@@ -444,9 +448,9 @@ export function IsometricGrid() {
       </button>
 
       <svg
-        width="100%"
-        height="100%"
-        viewBox={`5 10 ${GRID_PIXEL_WIDTH} ${GRID_PIXEL_HEIGHT}`}
+        width="80%"
+        height="80%"
+        viewBox={`15 10 ${GRID_PIXEL_WIDTH} ${GRID_PIXEL_HEIGHT}`}
         preserveAspectRatio="xMidYMid meet"
       >
         {/* Grid cells */}
@@ -458,18 +462,6 @@ export function IsometricGrid() {
         {/* Selected cell ID label */}
         {selectedCellLabel}
       </svg>
-
-      {/* Info overlay */}
-      <div className="absolute bottom-2 left-2 bg-app-blue bg-opacity-80 text-app-white
-                      text-xs font-mono px-2 py-1 rounded pointer-events-none">
-        <div>{TOTAL_CELLS} cells ({GRID_COLS}×{GRID_ROWS})</div>
-        {selectedCellId !== null && (
-          <div>LOS from {selectedCellId} — {visibleCells.size} visible</div>
-        )}
-        {entities.size > 0 && (
-          <div>Entities: {entities.size}</div>
-        )}
-      </div>
     </div>
   );
 }

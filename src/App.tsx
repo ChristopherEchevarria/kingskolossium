@@ -13,7 +13,6 @@ import { SiteHeader }            from './features/header/SiteHeader';
 import { useAuthStore }          from './features/auth/stores/authStore';
 import type { BadgeStatus } from './features/auth/stores/authStore';
 import { fetchCurrentUser }      from './api/auth';
-import type { BadgeStatus } from './features/auth/stores/authStore';
 
 
 export default function App() {
