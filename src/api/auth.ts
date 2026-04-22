@@ -1,3 +1,9 @@
+/***
+Path:/kingskolossium/src/api/auth.ts
+Created by: Christopher Echevarria
+Date of creation: 03Apr2026
+Purpose and Description:
+***/
 import { apiClient } from './client';
 
 export interface RegisterPayload { nickname: string; email: string; password: string; }
