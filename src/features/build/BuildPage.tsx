@@ -11,6 +11,7 @@ import { useHeaderStore } from '../header/stores/headerStore';
 import { EquipmentSearchBar } from './components/EquipmentSearchBar';
 import { EquipmentFilter } from './components/EquipmentFilter';
 import { EquipmentGrid } from './components/EquipmentGrid';
+import { EquipmentActiveSlots }  from './components/EquipmentActiveSlots';
 import { fetchEquipmentTypes } from '../../api/equipment';
 
 export function BuildPage() {
@@ -25,11 +26,24 @@ export function BuildPage() {
   }, [language, setEquipmentTypes]);
 
   return (
-    <div className="flex flex-col gap-3">
-      <EquipmentSearchBar />
-      <EquipmentFilter />
-      <EquipmentGrid />
-    </div>
+      <>
+        <div className="grid grid-cols-12 gap-3">
+
+          {/* Left column — slots + (characteristics + actions later) */}
+          <section className="col-span-12 lg:col-span-4 flex flex-col gap-3">
+            <EquipmentActiveSlots />
+            {/* TotalCharacteristics and BuildActions mount here in later steps */}
+          </section>
+
+          {/* Right column — browser */}
+          <section className="col-span-12 lg:col-span-8 flex flex-col gap-3">
+            <EquipmentSearchBar />
+            <EquipmentFilter />
+            <EquipmentGrid />
+          </section>
+
+        </div>
+    </>
   );
 }
 

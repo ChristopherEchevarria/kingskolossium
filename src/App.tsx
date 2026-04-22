@@ -13,6 +13,8 @@ import { SiteHeader }            from './features/header/SiteHeader';
 import { useAuthStore }          from './features/auth/stores/authStore';
 import type { BadgeStatus } from './features/auth/stores/authStore';
 import { fetchCurrentUser }      from './api/auth';
+import { PopupProvider } from './features/common/popups';
+
 
 
 export default function App() {
@@ -35,6 +37,7 @@ export default function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login"  element={<LoginPage />}  />
       </Routes>
+      <PopupProvider />
     </BrowserRouter>
   );
 }
