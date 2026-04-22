@@ -45,10 +45,10 @@ export function SwapPopup({ payload }: SwapPopupProps) {
 
   // Esc key
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') cancel(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
+      const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closePopup('swap'); };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }, [closePopup]);
 
   const { top, left } = computePos(payload.triggerRect);
 
@@ -77,7 +77,7 @@ export function SwapPopup({ payload }: SwapPopupProps) {
             return (
               <button
                 key={slot}
-                onClick={() => { resolveSwap(slot); cancel(); }}
+                onClick={() => { resolveSwap(slot)}}
                 className="flex flex-col items-center gap-1.5 p-2.5 rounded-lg border
                            transition-all duration-150 hover:brightness-125 hover:scale-105"
                 style={{ background: colors.bg, borderColor: colors.border, minWidth: 80 }}

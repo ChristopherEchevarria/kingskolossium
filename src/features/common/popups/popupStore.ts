@@ -12,7 +12,7 @@ interface PopupState {
   closeAll:   () => void;
 }
 
-export const usePopupStore = create<PopupState>((set, get) => ({
+export const usePopupStore = create<PopupState>((set) => ({
   stack: [],
 
   openPopup: (config) => set((state) => {

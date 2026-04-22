@@ -93,3 +93,7 @@ export const SLOT_SUPER_TYPE: Partial<Record<SlotId, number>> = {
   mount: 12,
   // breed has no super_type_id filter
 };
+
+export const SINGLE_SLOT_TYPE: Record<number, SlotId> = {
+  217: 'dofus1',
+};

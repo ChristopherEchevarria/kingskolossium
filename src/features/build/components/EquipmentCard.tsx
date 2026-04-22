@@ -22,7 +22,7 @@ interface EquipmentCardProps {
 }
 
 export function EquipmentCard({ item, superTypeId, onClick }: EquipmentCardProps) {
-  const { equipItem, setPendingSwapRect } = useBuildStore();
+  const { equipItem } = useBuildStore();
   const [mode, setMode] = useState<CardMode>('max');
 
   const colors  = SUPER_TYPE_CARD_COLORS[superTypeId ?? 0] ?? DEFAULT_CARD_COLOR;

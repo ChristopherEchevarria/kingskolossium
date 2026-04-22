@@ -8,7 +8,7 @@ Purpose and Description: Zustand store for equipment browser, filters, search
 import { create } from 'zustand';
 import type { EquipmentItem, EquipmentType  } from '../../../api/equipment';
 import type { SlotId } from '../slots';
-import { SLOT_ACCEPTS, SLOT_ROWS } from '../slots';
+import { SLOT_ACCEPTS, SLOT_ROWS, SINGLE_SLOT_TYPE } from '../slots';
 import { usePopupStore } from '../../common/popups/popupStore';
 
 
@@ -45,6 +45,8 @@ interface BuildState {
   equipToSlot:  (item: EquipmentItem, slot: SlotId) => void;
   unequip:      (slot: SlotId) => void;
   resetBuild:   () => void;
+  resolveSwap: (slot: SlotId) => void;
+
 
 }
 
@@ -101,21 +103,23 @@ export const useBuildStore = create<BuildState>((set, get) => ({
         return;
       }
 
-        // ── Rule: Prysmaradite → dofus1 only ────────────────────────────────────
-      const isPrysma = item.type_name?.toLowerCase().includes('prysma');
-      const candidates: SlotId[] = isPrysma
-        ? ['dofus1']
-        : (Object.keys(SLOT_ACCEPTS) as SlotId[]).filter(
+      const forcedSlot = item.type_id != null ? SINGLE_SLOT_TYPE[item.type_id] : undefined;
+      if (forcedSlot) {
+        console.log(item.type_id)
+        set({ equipped: { ...equipped, [forcedSlot]: item } });
+        return;
+      }
+
+      const candidates: SlotId[] = (Object.keys(SLOT_ACCEPTS) as SlotId[]).filter(
         slot => SLOT_ACCEPTS[slot].includes(superTypeId)
       );
 
-       if (candidates.length === 0) return
-          //Find all slots that accept this super_type_id
-          // Single candidate slot (helmet ,cape, etx) - always overwrite.
-       if(candidates.length === 1 ){
-          set({equipped: { ...equipped, [candidates[0]]: item}});
-          return;
-       }
+      if (candidates.length === 0) return;
+         // Single candidate slot (helmet, cape, etc.) - always overwrite.
+      if (candidates.length === 1) {
+        set({ equipped: { ...equipped, [candidates[0]]: item } });
+        return;
+      }
 
           //Multi-candidate (rings, dofus) fill first empty
        const firstEmpty = candidates.find(slot => equipped[slot] === null);
@@ -139,18 +143,7 @@ export const useBuildStore = create<BuildState>((set, get) => ({
     set((state) => ({ equipped: { ...state.equipped, [slot]: null } }));
   },
 
-  resolveSwap: (slot) => {
-    const { pendingSwap, equipped } = get();
-    if (!pendingSwap) return;
-    set({
-      equipped:    { ...equipped, [slot]: pendingSwap.item },
-      pendingSwap: null,
-    });
-  },
-
-  cancelSwap: () => set({ pendingSwap: null }),
-
-  resetBuild: () => set({ equipped: { ...EMPTY_EQUIPPED }, breedId: null, pendingSwap: null }),
+  resetBuild: () => set({ equipped: { ...EMPTY_EQUIPPED }, breedId: null }),
 
   setActiveTypeFilters: (superTypeIds) => set((state) => {
       const matching = state.equipmentTypes
@@ -163,12 +156,13 @@ export const useBuildStore = create<BuildState>((set, get) => ({
       }
     ),
 
-  resolveSwap: (slot) => {
+  resolveSwap: (slot: SlotId) => {
       const { equipped } = get();
-      const popup = usePopupStore.getState().stack.find(p => p.id === 'swap');
+      const stack = usePopupStore.getState().stack;
+      const popup = stack.find(p => p.id === 'swap');
       if (!popup) return;
-      const item = (popup.payload as import('../../common/popups/types').SwapPayload).item;
-      set({ equipped: { ...equipped, [slot]: item } });
+      const payload = popup.payload as import('../../common/popups/types').SwapPayload;
+      set({ equipped: { ...equipped, [slot]: payload.item } });
       usePopupStore.getState().closePopup('swap');
     },
 
