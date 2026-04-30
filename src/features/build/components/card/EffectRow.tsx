@@ -1,8 +1,8 @@
 import type { MappedEffect } from '../../../../api/equipment';
 import type { CardColors, CardMode } from './cardColors';
-import { API_BASE_URL } from '../../../../api/client';
+import { iconUrlFromTypeEn, CHARACTERISTIC_ICON_FALLBACK } from '../../utils/effectUtils';
 
-const FALLBACK_ICON = `${API_BASE_URL}/assets/characteristic-icons/24-64.png`;
+import { API_BASE_URL } from '../../../../api/client';
 
 
 interface EffectRowProps {
@@ -40,16 +40,7 @@ export function EffectRow({ eff, index, lang, colors, mode }: EffectRowProps) {
   const display    = resolveDisplay(eff, lang, mode);
   const isNegative = eff.min < 0 || (eff.min === 0 && eff.max < 0);
 
-  // Icon keyword: English type name lowercased, spaces → underscores
-  // e.g. "Spell Damage" → "spell_damage", "Vitality" → "vitality"
-  const typeEn      = eff.type.en || '';
-  // Spell-modifier effects start with ':' — they have no characteristic icon
-  const iconKeyword = typeEn.includes(':') || typeEn.startsWith('/')
-    ? null
-    : typeEn.toLowerCase().replace(/\s+/g, '_');
-  const iconUrl     = iconKeyword
-    ? `${API_BASE_URL}/assets/characteristic-icons/${iconKeyword}.png`
-    : null;
+  const iconUrl = iconUrlFromTypeEn(eff.type.en || '');
 
   return (
     <div
@@ -57,7 +48,7 @@ export function EffectRow({ eff, index, lang, colors, mode }: EffectRowProps) {
       className="grid grid-cols-[14px,1fr] gap-x-2 items-center font-mono text-[10px]"
     >
       <img
-        src={iconUrl ?? FALLBACK_ICON}
+        src={iconUrl ?? CHARACTERISTIC_ICON_FALLBACK}
         alt=""
         className="w-3.5 h-3.5 flex-shrink-0 object-contain"
         onError={(e) => {
