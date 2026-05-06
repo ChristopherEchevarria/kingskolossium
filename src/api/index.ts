@@ -8,3 +8,4 @@ Purpose and Description: Re-exports
 export { apiClient} from './client';
 export * from './combatMaps';
 export * from './auth';
+export * from './characteristics';

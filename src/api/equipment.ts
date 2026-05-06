@@ -22,8 +22,10 @@ export interface MappedEffect {
   max:                number;
   type:               MappedEffectType;
   templated:          MappedEffectType;
+  characteristic_id: number | null;
   element_id:         number;
   keyword:            string ;   // camelCase Dofus identifier e.g. "vitality", "actionPoints"
+  effective_value:    number;          // max, or min when min_max_irrelevant === -1
   is_meta:            boolean;
   active:             boolean;
   min_max_irrelevant: number;

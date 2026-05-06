@@ -7,8 +7,10 @@ Purpose and Description: Zustand store for equipment browser, filters, search
 
 import { create } from 'zustand';
 import type { EquipmentItem, EquipmentType  } from '../../../api/equipment';
+import type { Characteristic } from '../../../api/characteristics';
 import type { SlotId } from '../slots';
 import { SLOT_ACCEPTS, SLOT_ROWS, SINGLE_SLOT_TYPE } from '../slots';
+import {type PrimaryStatId, PRIMARY_STAT_IDS, EMPTY_PRIMARY,totalPoolCost } from '../primaryStats';
 import { usePopupStore } from '../../common/popups/popupStore';
 
 
@@ -29,6 +31,18 @@ interface BuildState {
   equipped:          Record<SlotId, EquipmentItem | null>;
   breedId:           number | null;
 
+  // ── Reference data — loaded once at startup ───────────────────────────────
+  characteristics:   Record<number, Characteristic>;  // characteristic_id → Characteristic
+
+  // ── Player character level ────────────────────────────────────────────────
+  characterLevel:    number;    // drives AP base, point pool size
+
+  // ── Primary stat allocation ───────────────────────────────────────────────
+  // Points the player manually distributes from the 995-point pool
+  basePoints:        Record<PrimaryStatId, number>;
+  // Scrolls — always +1 per increment, max 100 per stat, no pool cost
+  scrollPoints:      Record<PrimaryStatId, number>;
+
   // ── Actions — browser ──────────────────────────────────────────────────────────────
   setEquipmentItems:   (items: EquipmentItem[], total: number) => void;
   setEquipmentTypes:   (types: EquipmentType[]) => void;
@@ -38,6 +52,8 @@ interface BuildState {
   setCurrentPage:      (page: number) => void;
   resetTypeFilters:    () => void;   // resets pills only, NOT search bar
   setActiveTypeFilters: (superTypeIds: number[]) => void;
+  // ── Actions — reference data ──────────────────────────────────────────────
+  setCharacteristics:  (chars: Characteristic[]) => void;
 
 
   // ── Actions — equipped slots ─────────────────────────────────────────────
@@ -47,6 +63,11 @@ interface BuildState {
   resetBuild:   () => void;
   resolveSwap: (slot: SlotId) => void;
 
+    // ── Actions — primary stat allocation ────────────────────────────────────
+  setBasePoints:     (stat: PrimaryStatId, value: number) => void;
+  setScrollPoints:   (stat: PrimaryStatId, value: number) => void;
+  resetPrimaryStats: () => void;   // resets base + scroll only, NOT equipment
+  autoScrollAll:     () => void;   // sets all scroll stats to 100
 
 }
 
@@ -72,7 +93,16 @@ export const useBuildStore = create<BuildState>((set, get) => ({
 // ── Equipped initial state ────────────────────────────────────────────────
   equipped:     { ...EMPTY_EQUIPPED },
   breedId:      null,
+  characteristics:  {},
+  characterLevel:  200,
+  basePoints:      { ...EMPTY_PRIMARY },
+  scrollPoints:    { ...EMPTY_PRIMARY },
 
+  setCharacteristics: (chars) => set({
+    characteristics: Object.fromEntries(
+      chars.map(c => [c.characteristic_id, c])
+    ),
+  }),
   setEquipmentItems: (items, total) => set({ equipmentItems: items, totalItems: total }),
   setEquipmentTypes: (types) => set({ equipmentTypes: types }),
   setLoading:        (isLoading) => set({ isLoading }),
@@ -105,7 +135,6 @@ export const useBuildStore = create<BuildState>((set, get) => ({
 
       const forcedSlot = item.type_id != null ? SINGLE_SLOT_TYPE[item.type_id] : undefined;
       if (forcedSlot) {
-        console.log(item.type_id)
         set({ equipped: { ...equipped, [forcedSlot]: item } });
         return;
       }
@@ -143,7 +172,26 @@ export const useBuildStore = create<BuildState>((set, get) => ({
     set((state) => ({ equipped: { ...state.equipped, [slot]: null } }));
   },
 
-  resetBuild: () => set({ equipped: { ...EMPTY_EQUIPPED }, breedId: null }),
+  resetBuild: () => set({
+      equipped: { ...EMPTY_EQUIPPED },
+      breedId: null,
+      basePoints:   { ...EMPTY_PRIMARY },
+      scrollPoints: { ...EMPTY_PRIMARY },
+      }),
+
+  setBasePoints: (stat, value) => set((state) => {
+    const next = { ...state.basePoints, [stat]: value };
+    // Guard: total pool cost across all stats cannot exceed TOTAL_STAT_POINTS
+    const totalCost = PRIMARY_STAT_IDS.reduce(
+      (sum, s) => sum + totalPoolCost(s, next[s]), 0
+    );
+    if (totalCost > TOTAL_STAT_POINTS) return {};   // reject — no state change
+    return { basePoints: next };
+  }),
+
+    setScrollPoints: (stat, value) => set((state) => ({
+        scrollPoints: { ...state.scrollPoints, [stat]: Math.min(100, Math.max(0, value)) },
+        })),
 
   setActiveTypeFilters: (superTypeIds) => set((state) => {
       const matching = state.equipmentTypes
@@ -155,6 +203,12 @@ export const useBuildStore = create<BuildState>((set, get) => ({
           };
       }
     ),
+
+  resetPrimaryStats: () => set({ basePoints: { ...EMPTY_PRIMARY }, scrollPoints: { ...EMPTY_PRIMARY } }),
+
+  autoScrollAll: () => set({
+    scrollPoints: { vitality: 100, strength: 100, intelligence: 100, chance: 100, agility: 100, wisdom: 100 },
+    }),
 
   resolveSwap: (slot: SlotId) => {
       const { equipped } = get();

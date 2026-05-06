@@ -12,12 +12,21 @@ import { EquipmentSearchBar } from './components/EquipmentSearchBar';
 import { EquipmentFilter } from './components/EquipmentFilter';
 import { EquipmentGrid } from './components/EquipmentGrid';
 import { EquipmentActiveSlots }  from './components/EquipmentActiveSlots';
+import { TotalCharacteristics }    from './components/TotalCharacteristics';
 import { fetchEquipmentTypes } from '../../api/equipment';
+import { fetchCharacteristics } from '../../api/characteristics';
+
 
 export function BuildPage() {
-  const { setEquipmentTypes } = useBuildStore();
+  const { setEquipmentTypes,setCharacteristics } = useBuildStore();
   const { language } = useHeaderStore();
 
+  // Characteristics: language-independent — fetch once on mount, store all three names
+  useEffect(() => {
+    fetchCharacteristics()
+      .then(setCharacteristics)
+      .catch(err => console.error('[BuildPage] Failed to load characteristics:', err));
+  }, [setCharacteristics]);
   // Load equipment types on mount (for filter pills)
   useEffect(() => {
     fetchEquipmentTypes(language)
@@ -32,7 +41,8 @@ export function BuildPage() {
           {/* Left column — slots + (characteristics + actions later) */}
           <section className="col-span-12 lg:col-span-4 flex flex-col gap-3">
             <EquipmentActiveSlots />
-            {/* TotalCharacteristics and BuildActions mount here in later steps */}
+            <TotalCharacteristics />
+            {/* BuildActions mounts here in a later step */}
           </section>
 
           {/* Right column — browser */}
