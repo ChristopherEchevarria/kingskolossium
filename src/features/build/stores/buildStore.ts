@@ -10,7 +10,7 @@ import type { EquipmentItem, EquipmentType  } from '../../../api/equipment';
 import type { Characteristic } from '../../../api/characteristics';
 import type { SlotId } from '../slots';
 import { SLOT_ACCEPTS, SLOT_ROWS, SINGLE_SLOT_TYPE } from '../slots';
-import {type PrimaryStatId, PRIMARY_STAT_IDS, EMPTY_PRIMARY,totalPoolCost } from '../primaryStats';
+import {type PrimaryStatId, PRIMARY_STAT_IDS, EMPTY_PRIMARY, totalPoolCost, TOTAL_STAT_POINTS } from '../primaryStats';
 import { usePopupStore } from '../../common/popups/popupStore';
 
 
