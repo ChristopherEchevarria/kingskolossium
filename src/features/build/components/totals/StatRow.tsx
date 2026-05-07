@@ -22,21 +22,29 @@ export function StatRow({ icon, label, displayValue, equipDelta }: StatRowProps)
   const color = statColor(equipDelta);
   const url   = `${CHARACTERISTIC_ICON_BASE}/${icon}`;
 
-  return (
-    <div className="flex items-center gap-1.5">
-      <img
-        src={url}
-        alt=""
-        className="w-4 h-4 object-contain flex-shrink-0"
-        onError={(e) => { (e.currentTarget as HTMLImageElement).src = CHARACTERISTIC_ICON_FALLBACK; }}
-      />
-      <span className="font-mono text-[10px] text-white/50 flex-1 truncate">{label}</span>
-      <span
-        className="font-mono text-[10px] font-bold tabular-nums ml-2"
-        style={{ color }}
-      >
-        {displayValue > 0 ? `+${displayValue}` : displayValue}
-      </span>
-    </div>
-  );
+    return (
+        <div className="flex items-center gap-2">
+          {/* Left unit — icon + label tight together */}
+          <div className="flex items-center gap-1.5 min-w-0">
+            <img
+              src={url}
+              alt=""
+              className="w-4 h-4 object-contain flex-shrink-0"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = CHARACTERISTIC_ICON_FALLBACK; }}
+            />
+            <span className="font-mono text-[10px] text-white/50 truncate">{label}</span>
+          </div>
+
+          {/* Spacer */}
+          <span className="flex-1" />
+
+          {/* Value — right edge */}
+          <span
+            className="font-mono text-[10px] font-bold tabular-nums flex-shrink-0"
+            style={{ color }}
+          >
+            {displayValue > 0 ? `+${displayValue}` : displayValue}
+          </span>
+        </div>
+      );
 }

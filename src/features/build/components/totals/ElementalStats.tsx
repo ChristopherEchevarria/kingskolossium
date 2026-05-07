@@ -2,8 +2,9 @@
 Path: /kingskolossium/src/features/build/components/totals/ElementalStats.tsx
 Created by: Christopher Echevarria
 Date of creation: 06May2026
-Purpose and Description: Elemental damage and resistance card — 5-column table
-  (Icon · Element · Dmg · Res · Res%). One icon per element row (% res icon).
+Purpose and Description: Elemental damage and resistance card — rows of
+  (Icon · Label ··· Dmg · Res · Res%). Icon and label are a tight left unit.
+  The three value columns are fixed-width and right-aligned.
   Each value cell colored independently. Wrapped in liquid-glass island.
 ***/
 
@@ -38,7 +39,7 @@ const ELEMENT_ROWS = buildElementRows();
 function ValueCell({ equipDelta }: { equipDelta: number }) {
   return (
     <span
-      className="font-mono text-[10px] font-bold tabular-nums text-right"
+      className="font-mono text-[10px] font-bold tabular-nums text-right w-8 flex-shrink-0"
       style={{ color: statColor(equipDelta) }}
     >
       {equipDelta > 0 ? `+${equipDelta}` : equipDelta}
@@ -55,25 +56,36 @@ export function ElementalStats() {
         {STAT_GROUPS.damage.label}
       </span>
 
-      {/* Column headers */}
-      <div className="grid grid-cols-[16px,1fr,32px,32px,32px] gap-x-1.5 mb-0.5">
-        <span /><span />
-        <span className="font-mono text-[9px] text-white/30 text-right">Dmg</span>
-        <span className="font-mono text-[9px] text-white/30 text-right">Res</span>
-        <span className="font-mono text-[9px] text-white/30 text-right">Res%</span>
+      {/* Column headers — aligns with value cells */}
+      <div className="flex items-center">
+        <span className="flex-1" />
+        <span className="font-mono text-[9px] text-white/30 text-right w-8 flex-shrink-0">Dmg</span>
+        <span className="font-mono text-[9px] text-white/30 text-right w-8 flex-shrink-0 ml-1">Res</span>
+        <span className="font-mono text-[9px] text-white/30 text-right w-8 flex-shrink-0 ml-1">Res%</span>
       </div>
 
       {ELEMENT_ROWS.map(({ label, icon, dmg, resFixed, resPct }) => (
-        <div key={label} className="grid grid-cols-[16px,1fr,32px,32px,32px] gap-x-1.5 items-center">
-          <img
-            src={`${CHARACTERISTIC_ICON_BASE}/${icon}`}
-            alt=""
-            className="w-4 h-4 object-contain flex-shrink-0"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).src = CHARACTERISTIC_ICON_FALLBACK; }}
-          />
-          <span className="font-mono text-[10px] text-white/50">{label}</span>
+        <div key={label} className="flex items-center gap-2">
+
+          {/* Left unit — icon + label tight together */}
+          <div className="flex items-center gap-1.5 min-w-0">
+            <img
+              src={`${CHARACTERISTIC_ICON_BASE}/${icon}`}
+              alt=""
+              className="w-4 h-4 object-contain flex-shrink-0"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = CHARACTERISTIC_ICON_FALLBACK; }}
+            />
+            <span className="font-mono text-[10px] text-white/50 truncate">{label}</span>
+          </div>
+
+          {/* Spacer */}
+          <span className="flex-1" />
+
+          {/* Value cells */}
           <ValueCell equipDelta={equipTotals[dmg.element_id]      ?? 0} />
+          <span className="w-1" />
           <ValueCell equipDelta={equipTotals[resFixed.element_id] ?? 0} />
+          <span className="w-1" />
           <ValueCell equipDelta={equipTotals[resPct.element_id]   ?? 0} />
         </div>
       ))}
