@@ -15,10 +15,11 @@ import { EquipmentActiveSlots }  from './components/EquipmentActiveSlots';
 import { TotalCharacteristics }    from './components/TotalCharacteristics';
 import { fetchEquipmentTypes } from '../../api/equipment';
 import { fetchCharacteristics } from '../../api/characteristics';
+import { fetchBreeds }          from '../../api/breeds';
 
 
 export function BuildPage() {
-  const { setEquipmentTypes,setCharacteristics } = useBuildStore();
+  const { setEquipmentTypes,setCharacteristics, setBreeds } = useBuildStore();
   const { language } = useHeaderStore();
 
   // Characteristics: language-independent — fetch once on mount, store all three names
@@ -27,6 +28,12 @@ export function BuildPage() {
       .then(setCharacteristics)
       .catch(err => console.error('[BuildPage] Failed to load characteristics:', err));
   }, [setCharacteristics]);
+
+    useEffect(() => {
+        fetchBreeds()
+          .then(setBreeds)
+          .catch(err => console.error('[BuildPage] Failed to load breeds:', err));
+    }, [setBreeds]);
   // Load equipment types on mount (for filter pills)
   useEffect(() => {
     fetchEquipmentTypes(language)

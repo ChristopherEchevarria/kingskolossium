@@ -2,7 +2,8 @@
 
 export { PopupProvider }  from './PopupProvider';
 export { usePopupStore }  from './popupStore';
-export type { PopupId, PopupConfig, SwapPayload } from './types';
+export { BreedSelectorPopup }  from './BreedSelectorPopup';
+export type { PopupId, PopupConfig, SwapPayload, BreedSelectorPayload } from './types';
 
 // Future exports — uncomment as popups are built:
 // export { AnnouncementPopup } from './AnnouncementPopup';

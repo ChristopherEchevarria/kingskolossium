@@ -8,6 +8,7 @@ import type { EquipmentItem } from '../../../api/equipment';
 
 export type PopupId =
   | 'swap'
+  | 'breed-selector'
   // | 'announcement'   ← future: site-wide announcement banner
   // | 'payment'        ← future: Kamas / subscription purchase flow
   // | 'confirm'        ← future: generic "are you sure?" dialog
@@ -23,6 +24,12 @@ export interface SwapPayload {
   triggerRect:    { top: number; left: number; width: number; height: number } | null;
 }
 
+// No data needed — popup reads breed list from BREEDS config directly.
+export interface BreedSelectorPayload {
+  // intentionally empty
+}
+
+
 // export interface AnnouncementPayload { title: string; body: string; cta?: string; }
 // export interface PaymentPayload      { productId: string; priceKamas: number; }
 // export interface ConfirmPayload      { message: string; onConfirm: () => void; }
@@ -31,6 +38,7 @@ export interface SwapPayload {
 // ── Discriminated union — what popupStore holds ───────────────────────────────
 export type PopupConfig =
   | { id: 'swap';         payload: SwapPayload }
+  | { id: 'breed-selector'; payload: BreedSelectorPayload  }
   // | { id: 'announcement'; payload: AnnouncementPayload }
   // | { id: 'payment';      payload: PaymentPayload }
   // | { id: 'confirm';      payload: ConfirmPayload }

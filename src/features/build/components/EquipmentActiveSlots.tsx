@@ -5,6 +5,10 @@ import { SUPER_TYPE_CARD_COLORS, DEFAULT_CARD_COLOR } from './card/cardColors';
 import { API_BASE_URL } from '../../../api/client';
 import type { EquipmentItem } from '../../../api/equipment';
 import { BorderBeam } from 'border-beam';
+import { usePopupStore }   from '../../common/popups/popupStore';
+import { useHeaderStore }   from '../../header/stores/headerStore';
+import { parseLookId } from '../../common/popups/BreedSelectorPopup';
+
 
 // ── SlotCell ──────────────────────────────────────────────────────────────────
 
@@ -90,35 +94,58 @@ function SlotCell({ slotId }: { slotId: SlotId }) {
 // ── BreedCell ─────────────────────────────────────────────────────────────────
 
 function BreedCell() {
+  const { breedId, gender, breeds } = useBuildStore();
+  const { openPopup }               = usePopupStore();
+  const { language }                = useHeaderStore();
+
+
+  const entry    = breeds.find(b => b.breed_id === breedId) ?? null;
+  const look     = entry ? (gender === 'male' ? entry.male_look : entry.female_look) : null;
+  const lookId   = parseLookId(look);
+  const headSrc  = lookId
+    ? `${API_BASE_URL}/api/assets/classes/Head_${lookId}-64.png?size=2x`
+    : null;
+
   return (
     <div
+      onClick={() => openPopup({ id: 'breed-selector', payload: {} })}
+      title={entry ? `Class selected — click to change` : 'Click to select a class'}
       className="flex flex-col items-center justify-center rounded-lg border
-                 cursor-default select-none"
+                 cursor-pointer select-none transition-all duration-150 hover:brightness-125"
       style={{
-        background:  'rgba(255,255,255,0.02)',
-        borderColor: 'rgba(255,255,255,0.06)',
-        // Width fixed so 8-col grid can use remaining space
-        // Height matches 2 slot rows + gap between them
-        minWidth: 52,
+        background:  entry ? 'rgba(91,124,247,0.10)' : 'rgba(255,255,255,0.02)',
+        borderColor: entry ? 'rgba(91,124,247,0.35)' : 'rgba(255,255,255,0.06)',
+        minWidth: 104,
         width:    52,
-        alignSelf: 'stretch',   // fills full height of the flex row
+        alignSelf: 'stretch',
       }}
     >
-      {/* Placeholder silhouette */}
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        className="w-7 h-7 mb-1"
-        style={{ color: 'rgba(255,255,255,0.10)' }}
-      >
-        <circle cx="12" cy="8" r="4" fill="currentColor" />
-        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" fill="currentColor" />
-      </svg>
+      {headSrc ? (
+        <img
+          src={headSrc}
+          alt={`breed-${breedId}`}
+          className="w-15 h-15 object-contain"
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0.2'; }}
+        />
+      ) : (
+        // Placeholder silhouette (unchanged from original)
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          className="w-7 h-7 mb-1"
+          style={{ color: 'rgba(255,255,255,0.10)' }}
+        >
+          <circle cx="12" cy="8" r="4" fill="currentColor" />
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" fill="currentColor" />
+        </svg>
+      )}
       <span
-        className="font-mono text-[7px] text-center leading-tight"
+        className="font-mono text-[7px] text-center leading-tight mt-0.5"
         style={{ color: 'rgba(255,255,255,0.15)' }}
       >
-        Breed
+      {entry
+      ? (entry[`name_${language}` as 'name_en' | 'name_fr' | 'name_es'] ?? entry.name_en)
+      : 'Class'}
       </span>
     </div>
   );

@@ -8,6 +8,7 @@ Purpose and Description: Zustand store for equipment browser, filters, search
 import { create } from 'zustand';
 import type { EquipmentItem, EquipmentType  } from '../../../api/equipment';
 import type { Characteristic } from '../../../api/characteristics';
+import type { BreedInfo }      from '../../../api/breeds';
 import type { SlotId } from '../slots';
 import { SLOT_ACCEPTS, SLOT_ROWS, SINGLE_SLOT_TYPE } from '../slots';
 import {type PrimaryStatId, PRIMARY_STAT_IDS, EMPTY_PRIMARY, totalPoolCost, TOTAL_STAT_POINTS } from '../primaryStats';
@@ -30,12 +31,14 @@ interface BuildState {
   // ── Equipped slots ───────────────────────────────────────────────────────
   equipped:          Record<SlotId, EquipmentItem | null>;
   breedId:           number | null;
+  gender:            'male' | 'female';
 
   // ── Reference data — loaded once at startup ───────────────────────────────
   characteristics:   Record<number, Characteristic>;  // characteristic_id → Characteristic
-
+  breeds:            BreedInfo[];
   // ── Player character level ────────────────────────────────────────────────
   characterLevel:    number;    // drives AP base, point pool size
+
 
   // ── Primary stat allocation ───────────────────────────────────────────────
   // Points the player manually distributes from the 995-point pool
@@ -54,6 +57,8 @@ interface BuildState {
   setActiveTypeFilters: (superTypeIds: number[]) => void;
   // ── Actions — reference data ──────────────────────────────────────────────
   setCharacteristics:  (chars: Characteristic[]) => void;
+  setBreeds:           (breeds: BreedInfo[]) => void;
+
 
 
   // ── Actions — equipped slots ─────────────────────────────────────────────
@@ -62,6 +67,8 @@ interface BuildState {
   unequip:      (slot: SlotId) => void;
   resetBuild:   () => void;
   resolveSwap: (slot: SlotId) => void;
+  setBreed:    (breedId: number, gender: 'male' | 'female') => void;
+  setGender:   (gender: 'male' | 'female') => void;
 
     // ── Actions — primary stat allocation ────────────────────────────────────
   setBasePoints:     (stat: PrimaryStatId, value: number) => void;
@@ -93,6 +100,8 @@ export const useBuildStore = create<BuildState>((set, get) => ({
 // ── Equipped initial state ────────────────────────────────────────────────
   equipped:     { ...EMPTY_EQUIPPED },
   breedId:      null,
+  gender:       'male',
+  breeds:       [],
   characteristics:  {},
   characterLevel:  200,
   basePoints:      { ...EMPTY_PRIMARY },
@@ -103,6 +112,7 @@ export const useBuildStore = create<BuildState>((set, get) => ({
       chars.map(c => [c.characteristic_id, c])
     ),
   }),
+  setBreeds: (breeds) => set({ breeds }),
   setEquipmentItems: (items, total) => set({ equipmentItems: items, totalItems: total }),
   setEquipmentTypes: (types) => set({ equipmentTypes: types }),
   setLoading:        (isLoading) => set({ isLoading }),
@@ -175,6 +185,7 @@ export const useBuildStore = create<BuildState>((set, get) => ({
   resetBuild: () => set({
       equipped: { ...EMPTY_EQUIPPED },
       breedId: null,
+      gender:      'male',
       basePoints:   { ...EMPTY_PRIMARY },
       scrollPoints: { ...EMPTY_PRIMARY },
       }),
@@ -219,6 +230,9 @@ export const useBuildStore = create<BuildState>((set, get) => ({
       set({ equipped: { ...equipped, [slot]: payload.item } });
       usePopupStore.getState().closePopup('swap');
     },
+
+  setBreed:  (breedId, gender) => set({ breedId, gender }),
+  setGender: (gender)          => set({ gender }),
 
 }));
 
