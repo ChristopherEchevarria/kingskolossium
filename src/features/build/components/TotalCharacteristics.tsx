@@ -61,19 +61,18 @@ export function TotalCharacteristics() {
       if (!item) return;
       console.log('[item effects raw]', item.name, item.effects?.map(e => ({
         type_en: e.type.en,
-        char_id: e.characteristic_id,
-        max: e.max
+        element_id: e.element_id,
+        max: e.max,
+        effective_value: (e.min_max_irrelevant === -1 ? e.min : e.max)
       })));
 
-
       (item.effects ?? []).forEach(eff => {
-        if (eff.type.en === 'Range') console.log('[Range full effect]', JSON.stringify(eff));
         if (eff.is_meta) return;
-        if (eff.characteristic_id == null || eff.characteristic_id === 0) return;
-        acc[eff.characteristic_id] = (acc[eff.characteristic_id] ?? 0) + eff.max;
+        const value = eff.min_max_irrelevant === -1 ? eff.min : eff.max;
+        acc[eff.element_id] = (acc[eff.element_id] ?? 0) + value;
+
       });
     });
-    console.log('[equipTotals]', acc);   // ← ADD THIS LINE TEMPORARILY
     return acc;
   }, [equipped]);
 
@@ -94,18 +93,20 @@ export function TotalCharacteristics() {
               {group.label}
             </span>
             <div className="flex flex-col gap-1 px-1">
-              {group.stats.map(({ id, icon }) => {
-                const char  = characteristics[id];
+              {group.stats.map(({ characteristic_id,element_id, icon }) => {
+                const char  = characteristics[characteristic_id];
                 const lang  = language as 'en' | 'fr' | 'es';
                 const label = char
                   ? (char[`name_${lang}`] || char.name_en)
-                  : `[${id}]`;
+                  : `[${characteristic_id}]`;
+
+                const value = equipTotals[element_id] ?? 0;
                 return (
                   <StatRow
-                    key={id}
+                    key={characteristic_id}
                     icon={icon}
                     label={label}
-                    value={equipTotals[id] ?? 0}
+                    value={value}
                   />
                 );
               })}
