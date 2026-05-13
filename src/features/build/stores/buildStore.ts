@@ -9,6 +9,8 @@ import { create } from 'zustand';
 import type { EquipmentItem, EquipmentType  } from '../../../api/equipment';
 import type { Characteristic } from '../../../api/characteristics';
 import type { BreedInfo }      from '../../../api/breeds';
+import type { MappedSet, ActiveSet } from '../../../api/sets';
+import { selectActiveSets }           from '../utils/selectActiveSets';
 import type { SlotId } from '../slots';
 import { SLOT_ACCEPTS, SLOT_ROWS, SINGLE_SLOT_TYPE } from '../slots';
 import {type PrimaryStatId, PRIMARY_STAT_IDS, EMPTY_PRIMARY, totalPoolCost, TOTAL_STAT_POINTS } from '../primaryStats';
@@ -36,6 +38,8 @@ interface BuildState {
   // ── Reference data — loaded once at startup ───────────────────────────────
   characteristics:   Record<number, Characteristic>;  // characteristic_id → Characteristic
   breeds:            BreedInfo[];
+  setsIndex:         MappedSet[];                      // full set list, loaded once at session start
+  activeSets:        ActiveSet[];                      // derived — recomputed on every equip change
   // ── Player character level ────────────────────────────────────────────────
   characterLevel:    number;    // drives AP base, point pool size
 
@@ -58,6 +62,8 @@ interface BuildState {
   // ── Actions — reference data ──────────────────────────────────────────────
   setCharacteristics:  (chars: Characteristic[]) => void;
   setBreeds:           (breeds: BreedInfo[]) => void;
+  setSetsIndex:        (sets: MappedSet[]) => void;
+
 
 
 
@@ -86,6 +92,15 @@ const EMPTY_EQUIPPED = Object.fromEntries(
   SLOT_ROWS.flat().map(id => [id, null])
 ) as Record<SlotId, EquipmentItem | null>;
 
+// Recomputes activeSets whenever equipped changes.
+// Called at the end of every action that mutates equipped.
+function recomputeActiveSets(
+  setsIndex: MappedSet[],
+  equipped:  Record<SlotId, EquipmentItem | null>,
+): ActiveSet[] {
+  return selectActiveSets(setsIndex, equipped);
+}
+
 export const useBuildStore = create<BuildState>((set, get) => ({
 // ── Browser initial state ─────────────────────────────────────────────────
   equipmentItems:    [],
@@ -103,6 +118,8 @@ export const useBuildStore = create<BuildState>((set, get) => ({
   gender:       'male',
   breeds:       [],
   characteristics:  {},
+  setsIndex:    [],
+  activeSets:   [],
   characterLevel:  200,
   basePoints:      { ...EMPTY_PRIMARY },
   scrollPoints:    { ...EMPTY_PRIMARY },
@@ -113,6 +130,13 @@ export const useBuildStore = create<BuildState>((set, get) => ({
     ),
   }),
   setBreeds: (breeds) => set({ breeds }),
+  setSetsIndex: (sets) => {
+      const { equipped } = get();
+      set({
+        setsIndex: sets,
+        activeSets: selectActiveSets(sets, equipped),
+      });
+    },
   setEquipmentItems: (items, total) => set({ equipmentItems: items, totalItems: total }),
   setEquipmentTypes: (types) => set({ equipmentTypes: types }),
   setLoading:        (isLoading) => set({ isLoading }),
@@ -131,64 +155,70 @@ export const useBuildStore = create<BuildState>((set, get) => ({
   setCurrentPage:    (currentPage) => set({ currentPage }),
   resetTypeFilters:  () => set({ activeTypeFilters: new Set<number>(), currentPage: 0 }),
 
-  equipItem: (item) => {
-      const superTypeId = item.super_type_id ?? 0;
-      const { equipped } = get();
+   equipItem: (item) => {
+       const superTypeId = item.super_type_id ?? 0;
+       const { equipped, setsIndex } = get();
 
-      const alreadySlot = (Object.keys(equipped) as SlotId[]).find(
-        slot => equipped[slot]?.item_id === item.item_id
-      );
-      if (alreadySlot) {
-        set({ equipped: { ...equipped, [alreadySlot]: null } });
-        return;
-      }
+       const nextEquipped = (next: Record<SlotId, EquipmentItem | null>) => {
+          set({ equipped: next, activeSets: recomputeActiveSets(setsIndex, next) });
+       };
 
-      const forcedSlot = item.type_id != null ? SINGLE_SLOT_TYPE[item.type_id] : undefined;
-      if (forcedSlot) {
-        set({ equipped: { ...equipped, [forcedSlot]: item } });
-        return;
-      }
-
-      const candidates: SlotId[] = (Object.keys(SLOT_ACCEPTS) as SlotId[]).filter(
-        slot => SLOT_ACCEPTS[slot].includes(superTypeId)
-      );
-
-      if (candidates.length === 0) return;
-         // Single candidate slot (helmet, cape, etc.) - always overwrite.
-      if (candidates.length === 1) {
-        set({ equipped: { ...equipped, [candidates[0]]: item } });
-        return;
-      }
-
-          //Multi-candidate (rings, dofus) fill first empty
-       const firstEmpty = candidates.find(slot => equipped[slot] === null);
-       if (firstEmpty) {
-          set({ equipped: { ...equipped, [firstEmpty]: item } });
+       const alreadySlot = (Object.keys(equipped) as SlotId[]).find(
+          slot => equipped[slot]?.item_id === item.item_id
+       );
+       if (alreadySlot) {
+          nextEquipped({ ...equipped, [alreadySlot]: null });
           return;
        }
 
-          // All candidate slots are full — open swap popup
-       usePopupStore.getState().openPopup({
+       const forcedSlot = item.type_id != null ? SINGLE_SLOT_TYPE[item.type_id] : undefined;
+       if (forcedSlot) {
+          nextEquipped({ ...equipped, [forcedSlot]: item });
+          return;
+       }
+
+        const candidates: SlotId[] = (Object.keys(SLOT_ACCEPTS) as SlotId[]).filter(
+          slot => SLOT_ACCEPTS[slot].includes(superTypeId)
+        );
+
+        if (candidates.length === 0) return;
+        if (candidates.length === 1) {
+          nextEquipped({ ...equipped, [candidates[0]]: item });
+          return;
+        }
+
+        const firstEmpty = candidates.find(slot => equipped[slot] === null);
+        if (firstEmpty) {
+          nextEquipped({ ...equipped, [firstEmpty]: item });
+          return;
+        }
+
+        usePopupStore.getState().openPopup({
           id: 'swap',
           payload: { item, candidateSlots: candidates, triggerRect: null },
         });
       },
 
   equipToSlot: (item, slot) => {
-    set((state) => ({ equipped: { ...state.equipped, [slot]: item } }));
+    const { setsIndex } = get();
+    const nextEquipped = { ...get().equipped, [slot]: item };
+    set({ equipped: nextEquipped, activeSets: recomputeActiveSets(setsIndex, nextEquipped) });
   },
 
   unequip: (slot) => {
-    set((state) => ({ equipped: { ...state.equipped, [slot]: null } }));
+    const { setsIndex } = get();
+    const nextEquipped = { ...get().equipped, [slot]: null };
+    set({ equipped: nextEquipped, activeSets: recomputeActiveSets(setsIndex, nextEquipped) });
   },
 
   resetBuild: () => set({
-      equipped: { ...EMPTY_EQUIPPED },
-      breedId: null,
-      gender:      'male',
-      basePoints:   { ...EMPTY_PRIMARY },
-      scrollPoints: { ...EMPTY_PRIMARY },
-      }),
+    equipped:     { ...EMPTY_EQUIPPED },
+    activeSets:   [],
+    breedId:      null,
+    gender:       'male',
+    basePoints:   { ...EMPTY_PRIMARY },
+    scrollPoints: { ...EMPTY_PRIMARY },
+  }),
 
   setBasePoints: (stat, value) => set((state) => {
     const next = { ...state.basePoints, [stat]: value };
@@ -222,14 +252,15 @@ export const useBuildStore = create<BuildState>((set, get) => ({
     }),
 
   resolveSwap: (slot: SlotId) => {
-      const { equipped } = get();
-      const stack = usePopupStore.getState().stack;
-      const popup = stack.find(p => p.id === 'swap');
-      if (!popup) return;
-      const payload = popup.payload as import('../../common/popups/types').SwapPayload;
-      set({ equipped: { ...equipped, [slot]: payload.item } });
-      usePopupStore.getState().closePopup('swap');
-    },
+    const { equipped, setsIndex } = get();
+    const stack = usePopupStore.getState().stack;
+    const popup = stack.find(p => p.id === 'swap');
+    if (!popup) return;
+    const payload = popup.payload as import('../../common/popups/types').SwapPayload;
+    const nextEquipped = { ...equipped, [slot]: payload.item };
+    set({ equipped: nextEquipped, activeSets: recomputeActiveSets(setsIndex, nextEquipped) });
+    usePopupStore.getState().closePopup('swap');
+  },
 
   setBreed:  (breedId, gender) => set({ breedId, gender }),
   setGender: (gender)          => set({ gender }),

@@ -13,28 +13,16 @@ import { EquipmentFilter } from './components/EquipmentFilter';
 import { EquipmentGrid } from './components/EquipmentGrid';
 import { EquipmentActiveSlots }  from './components/EquipmentActiveSlots';
 import { TotalCharacteristics }    from './components/TotalCharacteristics';
+import { ActiveSetsPanel } from './components/ActiveSetsPanel';
 import { fetchEquipmentTypes } from '../../api/equipment';
-import { fetchCharacteristics } from '../../api/characteristics';
-import { fetchBreeds }          from '../../api/breeds';
-
+import { useReferenceData }     from './hooks/useReferenceData';
 
 export function BuildPage() {
-  const { setEquipmentTypes,setCharacteristics, setBreeds } = useBuildStore();
+  useReferenceData();
+  const { setEquipmentTypes} = useBuildStore();
   const { language } = useHeaderStore();
 
-  // Characteristics: language-independent — fetch once on mount, store all three names
-  useEffect(() => {
-    fetchCharacteristics()
-      .then(setCharacteristics)
-      .catch(err => console.error('[BuildPage] Failed to load characteristics:', err));
-  }, [setCharacteristics]);
-
-    useEffect(() => {
-        fetchBreeds()
-          .then(setBreeds)
-          .catch(err => console.error('[BuildPage] Failed to load breeds:', err));
-    }, [setBreeds]);
-  // Load equipment types on mount (for filter pills)
+  // Language-reactive — re-fetches when user switches locale
   useEffect(() => {
     fetchEquipmentTypes(language)
       .then(setEquipmentTypes)
@@ -43,11 +31,12 @@ export function BuildPage() {
 
   return (
       <>
-        <div className="grid grid-cols-12 gap-3">
+        <div className="grid grid-cols-12 gap-3 items-start">
 
           {/* Left column — slots + (characteristics + actions later) */}
           <section className="col-span-12 lg:col-span-4 flex flex-col gap-3">
             <EquipmentActiveSlots />
+            <ActiveSetsPanel />
             <TotalCharacteristics />
             {/* BuildActions mounts here in a later step */}
           </section>
