@@ -57,11 +57,13 @@ export function ElementalStats() {
       </span>
 
       {/* Column headers — aligns with value cells */}
-      <div className="flex items-center">
+      <div className="flex items-center gap-2">
         <span className="flex-1" />
-        <span className="font-mono text-[9px] text-white/30 text-right w-8 flex-shrink-0">Dmg</span>
-        <span className="font-mono text-[9px] text-white/30 text-right w-8 flex-shrink-0 ml-1">Res</span>
-        <span className="font-mono text-[9px] text-white/30 text-right w-8 flex-shrink-0 ml-1">Res%</span>
+        <span className="font-mono text-[9px] text-white/30 text-center w-8 flex-shrink-0">Dmg</span>
+        <span className="w-1 flex-shrink-0" />
+        <span className="font-mono text-[9px] text-white/30 text-center w-8 flex-shrink-0">Res</span>
+        <span className="w-1 flex-shrink-0" />
+        <span className="font-mono text-[9px] text-white/30 text-center w-8 flex-shrink-0">Res%</span>
       </div>
 
       {ELEMENT_ROWS.map(({ label, icon, dmg, resFixed, resPct }) => (

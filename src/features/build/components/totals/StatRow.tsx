@@ -32,7 +32,8 @@ export function StatRow({ icon, label, displayValue, equipDelta }: StatRowProps)
               className="w-4 h-4 object-contain flex-shrink-0"
               onError={(e) => { (e.currentTarget as HTMLImageElement).src = CHARACTERISTIC_ICON_FALLBACK; }}
             />
-            <span className="font-mono text-[10px] text-white/50 truncate">{label}</span>
+            <span className="font-mono text-[10px] text-white/50 flex-1 truncate min-w-0">{label}</span>
+
           </div>
 
           {/* Spacer */}
@@ -40,9 +41,9 @@ export function StatRow({ icon, label, displayValue, equipDelta }: StatRowProps)
 
           {/* Value — right edge */}
           <span
-            className="font-mono text-[10px] font-bold tabular-nums flex-shrink-0"
-            style={{ color }}
-          >
+              className="font-mono text-[10px] font-bold tabular-nums ml-2 shrink-0"
+              style={{ color }}
+            >
             {displayValue > 0 ? `+${displayValue}` : displayValue}
           </span>
         </div>

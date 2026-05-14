@@ -4,6 +4,7 @@ Path:/kingskolossium/src/features/build/components/card/SetInformation.tsx
 
 import type { EquipmentItem } from '../../../../api/equipment';
 import { useHeaderStore } from '../../../header/stores/headerStore';
+import { usePopupStore } from '../../../common/popups/popupStore';
 import type { CardColors } from './cardColors';
 
 const SET_PREFIX: Record<string, string> = {
@@ -32,7 +33,14 @@ export function SetInformation({ item, colors }: Props) {
         color:        `${colors.accent}99`,
         background:   colors.badge,
       }}
-      onClick={(e) => { e.stopPropagation(); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (!item.parent_set_id) return;
+        usePopupStore.getState().openPopup({
+          id: 'set-info',
+          payload: { setId: item.parent_set_id },
+        });
+      }}
     >
       {prefix} {setName}
     </div>

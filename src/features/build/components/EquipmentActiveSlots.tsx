@@ -115,7 +115,7 @@ function BreedCell() {
       style={{
         background:  entry ? 'rgba(91,124,247,0.10)' : 'rgba(255,255,255,0.02)',
         borderColor: entry ? 'rgba(91,124,247,0.35)' : 'rgba(255,255,255,0.06)',
-        minWidth: 104,
+        minWidth: 52,
         width:    52,
         alignSelf: 'stretch',
       }}
@@ -124,7 +124,7 @@ function BreedCell() {
         <img
           src={headSrc}
           alt={`breed-${breedId}`}
-          className="w-15 h-15 object-contain"
+          className="w-10 h-10 object-contain"
           onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0.2'; }}
         />
       ) : (

@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { usePopupStore } from './popupStore';
 import { SwapPopup } from './SwapPopup';
 import { BreedSelectorPopup } from './BreedSelectorPopup';
+import { SetInfoPopup } from './SetInfoPopup';
+
 
 // import { AnnouncementPopup } from './AnnouncementPopup';  ← future
 // import { PaymentPopup }      from './PaymentPopup';       ← future
@@ -19,6 +21,8 @@ export function PopupProvider() {
         return <SwapPopup key="swap" payload={config.payload} />;
       case 'breed-selector':
         return <BreedSelectorPopup key="breed-selector" payload={config.payload} />;
+      case 'set-info':
+        return <SetInfoPopup key="set-info" payload={config.payload} />;
       // case 'announcement':
       //   return <AnnouncementPopup key="announcement" payload={config.payload} />;
       // case 'payment':
