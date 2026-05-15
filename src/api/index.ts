@@ -9,6 +9,7 @@ export { apiClient} from './client';
 export * from './combatMaps';
 export * from './auth';
 export * from './characteristics';
+export * from './builds';
 export * from './breeds';
 export * from './sets';
 
