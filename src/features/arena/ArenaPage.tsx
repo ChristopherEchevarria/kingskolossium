@@ -8,12 +8,13 @@ Purpose and Description: Root layout — mode toggle + conditional render
 import { ModeToggle } from './components/ModeToggle';
 import { CombatMode } from './components/CombatMode';
 import { useArenaStore } from './stores/arenaStore';
-
 import { BuildPage } from '../build//BuildPage';
+import { useReferenceData }  from '../build/hooks/useReferenceData';
+
 
 export function ArenaPage() {
   const { mode } = useArenaStore();
-
+  useReferenceData();
   return (
     <div className="min-h-screen flex flex-col items-center py-6 px-4">
       <div className="w-full flex flex-col gap-3 overflow-hidden" style={{ maxWidth: '90%' }}>

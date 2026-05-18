@@ -5,7 +5,9 @@ Date of creation: 31Mar2026
 Purpose and Description: Slide-out panel — inert when logged out, interactive when logged in
 ***/
 
-import { useHeaderStore } from '../stores/headerStore';
+import { useHeaderStore }        from '../stores/headerStore';
+import { HamburgerBuildsPanel }  from './HamburgerBuildsPanel';
+import { useAuthStore }          from '../../auth/stores/authStore';
 
 interface HamburgerMenuProps {
   isLoggedIn: boolean;
@@ -14,6 +16,7 @@ interface HamburgerMenuProps {
 
 export function HamburgerMenu({ isLoggedIn, onLogout }: HamburgerMenuProps) {
   const { menuOpen, toggleMenu, closeMenu, language } = useHeaderStore();
+  const { user } = useAuthStore();
 
   // When logged out, the button renders but the panel does nothing interactive
   const canOpen = isLoggedIn;
@@ -60,9 +63,10 @@ export function HamburgerMenu({ isLoggedIn, onLogout }: HamburgerMenuProps) {
 
             {/* Expandable features area — placeholder */}
               <div className="flex-1 p-4 overflow-y-auto">
-                <div className="liquid-glass rounded-xl p-4">
-                    <p className="text-white/50 text-xs font-mono">{COMING_SOON[language]}</p>
-                </div>
+                  <HamburgerBuildsPanel
+                    badgeStatus={user?.badge_status ?? 'visitor'}
+                    onClose={closeMenu}
+                  />
               </div>
 
             {/* Logout */}

@@ -8,23 +8,29 @@ import client from './client';
 
 export type Visibility = 'private' | 'shareable';
 
+export interface SlotEntry {
+  item_id: number;
+  icon_id: number;
+}
+
 export interface BuildSlots {
-  breed:  number | null;
-  helmet: number | null;
-  cape:   number | null;
-  amulet: number | null;
-  ring1:  number | null;
-  ring2:  number | null;
-  belt:   number | null;
-  boots:  number | null;
-  shield: number | null;
-  weapon: number | null;
-  dofus1: number | null;
-  dofus2: number | null;
-  dofus3: number | null;
-  dofus4: number | null;
-  dofus5: number | null;
-  dofus6: number | null;
+  breed:  SlotEntry | null;
+  helmet: SlotEntry | null;
+  cape:   SlotEntry | null;
+  amulet: SlotEntry | null;
+  ring1:  SlotEntry | null;
+  ring2:  SlotEntry | null;
+  belt:   SlotEntry | null;
+  boots:  SlotEntry | null;
+  shield: SlotEntry | null;
+  weapon: SlotEntry | null;
+  mount:  SlotEntry | null;
+  dofus1: SlotEntry | null;
+  dofus2: SlotEntry | null;
+  dofus3: SlotEntry | null;
+  dofus4: SlotEntry | null;
+  dofus5: SlotEntry | null;
+  dofus6: SlotEntry | null;
 }
 
 export interface Build {

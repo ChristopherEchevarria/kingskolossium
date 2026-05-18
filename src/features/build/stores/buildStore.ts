@@ -76,6 +76,25 @@ interface BuildState {
   setBreed:    (breedId: number, gender: 'male' | 'female') => void;
   setGender:   (gender: 'male' | 'female') => void;
 
+
+  // ── Build persistence metadata ────────────────────────────────────────────
+  currentBuildId:         string | null;   // null = unsaved
+  currentBuildName:       string;
+  currentBuildComment:    string;
+  currentBuildVisibility: 'private' | 'shareable';
+
+  savedBuilds:            import('../../../api/builds').Build[] | null;  // null = not yet fetched
+
+
+  setCurrentBuildId:      (id: string | null) => void;
+  setCurrentBuildName:    (name: string) => void;
+  setCurrentBuildComment: (comment: string) => void;
+  setCurrentBuildVis:     (vis: 'private' | 'shareable') => void;
+  loadBuild:              (build: import('../../../api/builds').Build) => void;
+  setSavedBuilds:         (builds: import('../../../api/builds').Build[]) => void;
+  upsertSavedBuild:       (build: import('../../../api/builds').Build) => void;  // add or replace
+  removeSavedBuild:       (buildId: string) => void;
+
     // ── Actions — primary stat allocation ────────────────────────────────────
   setBasePoints:     (stat: PrimaryStatId, value: number) => void;
   setScrollPoints:   (stat: PrimaryStatId, value: number) => void;
@@ -123,6 +142,14 @@ export const useBuildStore = create<BuildState>((set, get) => ({
   characterLevel:  200,
   basePoints:      { ...EMPTY_PRIMARY },
   scrollPoints:    { ...EMPTY_PRIMARY },
+
+  // ── Build persistence metadata ────────────────────────────────────────────
+  currentBuildId:         null,
+  currentBuildName:       '',
+  currentBuildComment:    '',
+  currentBuildVisibility: 'private',
+  savedBuilds:            null,
+
 
   setCharacteristics: (chars) => set({
     characteristics: Object.fromEntries(
@@ -265,6 +292,44 @@ export const useBuildStore = create<BuildState>((set, get) => ({
   setBreed:  (breedId, gender) => set({ breedId, gender }),
   setGender: (gender)          => set({ gender }),
 
+  setCurrentBuildId:      (id) =>   set({ currentBuildId: id }),
+  setCurrentBuildName:    (name) => set({ currentBuildName: name }),
+  setCurrentBuildComment: (comment) => set({ currentBuildComment: comment }),
+  setCurrentBuildVis:     (vis) =>  set({ currentBuildVisibility: vis }),
+
+  setSavedBuilds:   (builds) => set({ savedBuilds: builds }),
+  upsertSavedBuild: (build) => set((state) => {
+    const list = state.savedBuilds ?? [];
+    const idx  = list.findIndex(b => b.build_id === build.build_id);
+    return {
+      savedBuilds: idx >= 0
+        ? list.map(b => b.build_id === build.build_id ? build : b)
+        : [build, ...list],   // new builds go to the top
+    };
+  }),
+  removeSavedBuild: (buildId) => set((state) => ({
+    savedBuilds: (state.savedBuilds ?? []).filter(b => b.build_id !== buildId),
+  })),
+
+  loadBuild: (build) => {
+    const { setsIndex } = get();
+    const slots = build.slots;
+
+    const nextEquipped = Object.fromEntries(
+      (Object.keys(EMPTY_EQUIPPED) as SlotId[]).map(slotId => [slotId, null])
+    ) as Record<SlotId, EquipmentItem | null>;
+
+    set({
+      equipped:               nextEquipped,
+      activeSets:             recomputeActiveSets(setsIndex, nextEquipped),
+      breedId:                build.breed_id,
+      currentBuildId:         build.build_id,
+      currentBuildName:       build.name,
+      currentBuildComment:    build.comment ?? '',
+      currentBuildVisibility: build.visibility,
+    });
+  },
 }));
+
 
 export default useBuildStore;

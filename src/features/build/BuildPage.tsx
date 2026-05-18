@@ -15,10 +15,9 @@ import { EquipmentActiveSlots }  from './components/EquipmentActiveSlots';
 import { TotalCharacteristics }    from './components/TotalCharacteristics';
 import { ActiveSetsPanel } from './components/ActiveSetsPanel';
 import { fetchEquipmentTypes } from '../../api/equipment';
-import { useReferenceData }     from './hooks/useReferenceData';
 
 export function BuildPage() {
-  useReferenceData();
+
   const { setEquipmentTypes} = useBuildStore();
   const { language } = useHeaderStore();
 
